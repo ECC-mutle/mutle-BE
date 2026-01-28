@@ -1,0 +1,57 @@
+package com.mutle.mutle.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+
+@Entity
+@Table(name = "friendships")
+@Builder
+public class FriendShip {
+
+    @Id
+    @GeneratedValue
+    @Column(name = "friend_request_id")
+    private Long friendRequestId;
+
+    @ManyToOne
+    @JoinColumn(name = "requester_id", nullable = false)
+    private User requester;
+
+    @ManyToOne
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
+
+    @Column(name = "friendship_status", nullable = false, length = 20)
+    private FriendshipStatus friendshipStatus;
+
+    @Column(name = "requested_at", nullable = false, updatable = false)
+    private Timestamp requestedAt = Timestamp.valueOf(LocalDateTime.now());
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Timestamp updatedAt = Timestamp.valueOf(LocalDateTime.now());
+
+    @Column(name = "unfriended_at")
+    private Timestamp unfriendedAt = Timestamp.valueOf(LocalDateTime.now());
+
+    // 친구 수락 시 상태 변경
+    public void acceptRequest() {
+        this.friendshipStatus = FriendshipStatus.ACCEPTED;
+    }
+}
+
+enum FriendshipStatus {
+    NONE,             // 아무 관계 없음
+    REQUEST_SENT,     // 내가 신청을 보낸 상태
+    REQUEST_RECEIVED, // 상대가 내게 신청을 보낸 상태
+    ACCEPTED          // 이미 친구인 상태
+}
