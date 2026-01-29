@@ -34,6 +34,6 @@ public class Music {
     private Timestamp musicCreatedAt;
 
     @UpdateTimestamp
-    @Column(name = "music_created_at", nullable = false)
+    @Column(name = "music_updated_at", nullable = false)
     private Timestamp musicUpdatedAt;
 }

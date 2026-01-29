@@ -52,6 +52,6 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "user")
     private List<Platform> platforms=new ArrayList<>();
 }
