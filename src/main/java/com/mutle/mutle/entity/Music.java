@@ -27,8 +27,8 @@ public class Music {
     @Column(name = "artist_name", nullable = false, length = 200)
     private String artistName;
 
-    @Column(name = "album_cover_url", nullable = false, length = 500)
-    private String albumCoverUrl;
+    @Column(name = "artwork_url_60", nullable = false, length = 500)
+    private String artworkUrl60;
 
     @Column(name = "music_created_at", nullable = false, updatable = false)
     private Timestamp musicCreatedAt;
