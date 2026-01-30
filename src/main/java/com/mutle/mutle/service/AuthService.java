@@ -1,5 +1,7 @@
 package com.mutle.mutle.service;
 
+import com.mutle.mutle.dto.LoginRequestDto;
+import com.mutle.mutle.dto.LoginResponseDto;
 import com.mutle.mutle.dto.SignupRequestDto;
 import com.mutle.mutle.dto.SignupResponseDto;
 import com.mutle.mutle.entity.User;
@@ -46,5 +48,24 @@ public class AuthService {
 
         //dto 생성
         return new SignupResponseDto(savedUser.getCreatedAt());
+    }
+
+    @Transactional
+    public LoginResponseDto login(LoginRequestDto requestDto){
+        //db에서 유저 찾기
+        User user=userRepository.findByUserId(requestDto.getUserId())
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //비밀번호 일치 확인
+        if(!passwordEncoder.matches(requestDto.getPassword(),user.getPassword())){
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+        }
+
+        return new LoginResponseDto(
+                "temp-access-token",
+                "temp-refresh-token",
+                user.getUserId(),
+                false
+        );
     }
 }
