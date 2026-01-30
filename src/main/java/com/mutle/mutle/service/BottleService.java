@@ -2,6 +2,7 @@ package com.mutle.mutle.service;
 
 import com.mutle.mutle.dto.BottleCreateRequest;
 import com.mutle.mutle.dto.BottleCreateResponse;
+import com.mutle.mutle.dto.BottleRandomResponse;
 import com.mutle.mutle.entity.Bottle;
 import com.mutle.mutle.entity.Music;
 import com.mutle.mutle.entity.TodayQuest;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Slf4j
 @Service
@@ -66,7 +69,14 @@ public class BottleService {
     }
 
     //유리병 받기
-    public void getBottle() {}  
+    public BottleRandomResponse getBottle(Long id) {
+        // 랜덤 유리병 조회
+        Bottle randomBottle = bottleRepository.findRandomBottle(id)
+                .orElseThrow(() -> new IllegalArgumentException("도착한 유리병이 없습니다."));
+
+        // 반환
+        return BottleRandomResponse.fromEntity(randomBottle, id);
+    }
 
     // 유리병 반응 남기기
     @Transactional
