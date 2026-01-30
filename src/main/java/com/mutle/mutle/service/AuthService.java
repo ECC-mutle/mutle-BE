@@ -7,6 +7,7 @@ import com.mutle.mutle.dto.SignupResponseDto;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
+import com.mutle.mutle.jwt.JwtUtil;
 import com.mutle.mutle.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,12 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Transactional
@@ -61,9 +64,12 @@ public class AuthService {
             throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
         }
 
+        String accessToken= jwtUtil.generateAccessToken(user.getId());
+        String refreshToken= jwtUtil.generateRefreshToken(user.getId());
+
         return new LoginResponseDto(
-                "temp-access-token",
-                "temp-refresh-token",
+                accessToken,
+                refreshToken,
                 user.getUserId(),
                 false
         );
