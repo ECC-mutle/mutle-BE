@@ -134,38 +134,57 @@ public class AuthService {
     }
 
 
-//정보 수정
-@Transactional
-public UserInfoResponseDto userInfoFix(UserInfoRequestDto requestDto, Long id) {
+    //정보 수정
+    @Transactional
+    public UserInfoResponseDto userInfoFix(UserInfoRequestDto requestDto, Long id) {
     User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
-    //아이디 변경
-    if(requestDto.getUserId() != null &&!user.getUserId().equals(requestDto.getUserId())){
-        checkUserId(requestDto.getUserId());
-        user.updateUserId(requestDto.getUserId());
+        //아이디 변경
+        if(requestDto.getUserId() != null &&!user.getUserId().equals(requestDto.getUserId())){
+            checkUserId(requestDto.getUserId());
+            user.updateUserId(requestDto.getUserId());
+        }
+
+        //이메일 변경
+        if(requestDto.getEmail() != null &&!user.getEmail().equals(requestDto.getEmail())){
+            checkEmail(requestDto.getEmail());
+            user.updateEmail(requestDto.getEmail());
+        }
+
+        //닉네임 변경
+        if(requestDto.getNickname()!=null && !user.getNickname().equals(requestDto.getNickname())){
+            user.updateNickname(requestDto.getNickname());
+        }
+
+        //이미지 변경
+        if(requestDto.getProfileImage()!=null && !user.getProfileImage().equals(requestDto.getProfileImage())){
+            user.updateProfileImage(requestDto.getProfileImage());
+        }
+
+        return new UserInfoResponseDto(
+                user.getUserId(),
+                user.getNickname(),
+                user.getEmail(),
+                user.getProfileImage()
+        );
     }
 
-    //이메일 변경
-    if(requestDto.getEmail() != null &&!user.getEmail().equals(requestDto.getEmail())){
-        checkEmail(requestDto.getEmail());
-        user.updateEmail(requestDto.getEmail());
-    }
+    //비밀번호 수정
+    @Transactional
+    public void passwordUpdate(PasswordUpdateRequestDto requestDto, Long id){
+        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
-    //닉네임 변경
-    if(requestDto.getNickname()!=null && !user.getNickname().equals(requestDto.getNickname())){
-        user.updateNickname(requestDto.getNickname());
-    }
+        //비밀번호 일치 검사
+        if(!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())){
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+        }
 
-    //이미지 변경
-    if(requestDto.getProfileImage()!=null && !user.getProfileImage().equals(requestDto.getProfileImage())){
-        user.updateProfileImage(requestDto.getProfileImage());
-    }
+        //기존 비밀번호와 다른지 검사
+        if(passwordEncoder.matches(requestDto.getNewPassword(), user.getPassword())){
+            throw new CustomException(ErrorCode.OLD_PASSWORD);
+        }
 
-    return new UserInfoResponseDto(
-            user.getUserId(),
-            user.getNickname(),
-            user.getEmail(),
-            user.getProfileImage()
-    );
-}
+        String encodedPassword=passwordEncoder.encode(requestDto.getNewPassword());
+        user.updatePassword(encodedPassword);
+    }
 }

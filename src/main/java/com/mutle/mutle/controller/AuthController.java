@@ -60,7 +60,7 @@ public class AuthController {
         UserInfoResponseDto data=authService.userInfo(id);
         return ApiResponse.success("정보를 성공적으로 조회했습니다.", data);
     }
-@PatchMapping("/me") public ApiResponse<UserInfoResponseDto> userInfoFix(@Valid @RequestBody UserInfoRequestDto requestDto, @RequestHeader("Authorization") String token){
+    @PatchMapping("/me") public ApiResponse<UserInfoResponseDto> userInfoFix(@Valid @RequestBody UserInfoRequestDto requestDto, @RequestHeader("Authorization") String token){
         if (token == null || !token.startsWith("Bearer ")) {
             throw new CustomException(ErrorCode.TOKEN_ERROR);
         }
@@ -68,5 +68,14 @@ public class AuthController {
         UserInfoResponseDto data=authService.userInfoFix(requestDto, id);
         return ApiResponse.success("정보를 성공적으로 수정했습니다.", data);
     }
+    @PutMapping("/me/password") public ApiResponse<Void> passwordUpdate(@Valid @RequestBody PasswordUpdateRequestDto requestDto, @RequestHeader("Authorization") String token){
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new CustomException(ErrorCode.TOKEN_ERROR);
+        }
+        Long id = jwtUtil.getId(token.substring(7));
+        authService.passwordUpdate(requestDto, id);
+        return  ApiResponse.success("비밀번호가 성공적으로 변경되었습니다.", null);
+    }
+
 }
 
