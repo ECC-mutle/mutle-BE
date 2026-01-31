@@ -118,5 +118,17 @@ public class AuthService {
         }
     }
 
+    //정보 조회
+    @Transactional(readOnly = true)
 
+    public UserInfoResponseDto userInfo(Long id) {
+        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return new UserInfoResponseDto(
+                user.getUserId(),
+                user.getNickname(),
+                user.getEmail(),
+                user.getProfileImage()
+        );
+    }
 }

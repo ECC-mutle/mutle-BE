@@ -1,6 +1,9 @@
 package com.mutle.mutle.controller;
 
 import com.mutle.mutle.dto.*;
+import com.mutle.mutle.exception.CustomException;
+import com.mutle.mutle.exception.ErrorCode;
+import com.mutle.mutle.jwt.JwtUtil;
 import com.mutle.mutle.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
     public ApiResponse<SignupResponseDto> signup(@Valid @RequestBody SignupRequestDto requestDto){
@@ -26,8 +30,8 @@ public class AuthController {
         return ApiResponse.success("로그인이 성공적으로 완료되었습니다.", data);
     }
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(@RequestHeader("Authorization") String token){
-        authService.logout(token);
+    public ApiResponse<Void> logout(@RequestHeader("Authorization") String authHeader){
+        authService.logout(authHeader);
         return ApiResponse.success("로그아웃이 성공적으로 완료되었습니다.", null);
     }
     @DeleteMapping("/me")
@@ -44,5 +48,16 @@ public class AuthController {
     public ApiResponse<Void> checkEmail(@RequestParam String email){
         authService.checkEmail(email);
         return ApiResponse.success("사용 가능한 이메일입니다.", null);
+    }
+    @GetMapping("/me")
+    public ApiResponse<UserInfoResponseDto> userInfo(@RequestHeader("Authorization") String token){
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new CustomException(ErrorCode.TOKEN_ERROR);
+        }
+
+        Long id = jwtUtil.getId(token.substring(7));
+
+        UserInfoResponseDto data=authService.userInfo(id);
+        return ApiResponse.success("정보를 성공적으로 조회했습니다.", data);
     }
 }
