@@ -87,10 +87,10 @@ public class AuthService {
 
     //회원탈퇴
     @Transactional
-    public void withdraw(WithdrawRequestDto requestDto, String authHeader){
+    public void withdraw(WithdrawRequestDto requestDto, String token, Long id){
 
         //유저 조회
-        User user=userRepository.findByUserId(requestDto.getUserId()).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
         //비밀번호 일치 확인
         if(!passwordEncoder.matches(requestDto.getPassword(),user.getPassword())){
@@ -98,7 +98,7 @@ public class AuthService {
         }
 
         //토큰 만료시키기
-         logout(authHeader);
+         logout(token);
 
         userRepository.delete(user);
     }
