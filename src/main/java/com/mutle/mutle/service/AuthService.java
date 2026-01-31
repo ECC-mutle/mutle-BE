@@ -19,7 +19,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final TokenBlacklist tokenBlacklist;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, TokenBlacklist tokenBlacklist, RepMusicRepository repMusicRepository) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, TokenBlacklist tokenBlacklist) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -29,14 +29,10 @@ public class AuthService {
     //회원가입
     @Transactional
     public SignupResponseDto signup(SignupRequestDto requestDto){
-        //아이디 중복 검사
-        if(userRepository.existsByUserId(requestDto.getUserId())){
-            throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
-        }
-        //이메일 중복 검사
-        if(userRepository.existsByEmail(requestDto.getEmail())){
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
-        }
+        //아이디 중복 확인
+        checkUserId(requestDto.getUserId());
+        //이메일 중복 확인
+        checkEmail(requestDto.getEmail());
 
         //유저 객체 생성
         User user=User.builder()
@@ -105,5 +101,22 @@ public class AuthService {
 
         userRepository.delete(user);
     }
+
+    //아이디 중복 확인
+    @Transactional(readOnly = true)
+    public void checkUserId(String userId) {
+        if (userRepository.existsByUserId(userId)){
+            throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
+        }
+    }
+
+    //이메일 중복 확인
+    @Transactional(readOnly = true)
+    public void checkEmail(String email) {
+        if(userRepository.existsByEmail(email)){
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
+    }
+
 
 }
