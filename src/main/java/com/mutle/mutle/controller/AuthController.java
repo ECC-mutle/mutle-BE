@@ -30,4 +30,9 @@ public class AuthController {
         authService.logout(token);
         return ApiResponse.success("로그아웃이 성공적으로 완료되었습니다.", null);
     }
+    @DeleteMapping("/me")
+    public ApiResponse<Void> withdraw(@Valid @RequestBody WithdrawRequestDto requestDto, @RequestHeader("Authorization") String token){
+        authService.withdraw(requestDto, token);
+        return ApiResponse.success("회원 탈퇴가 성공적으로 완료되었습니다.", null);
+    }
 }

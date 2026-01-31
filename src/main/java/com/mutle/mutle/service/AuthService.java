@@ -1,15 +1,12 @@
 package com.mutle.mutle.service;
 
-import com.mutle.mutle.dto.LoginRequestDto;
-import com.mutle.mutle.dto.LoginResponseDto;
-import com.mutle.mutle.dto.SignupRequestDto;
-import com.mutle.mutle.dto.SignupResponseDto;
+import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
 import com.mutle.mutle.jwt.JwtUtil;
 import com.mutle.mutle.jwt.TokenBlacklist;
-import com.mutle.mutle.repository.UserRepository;
+import com.mutle.mutle.repository.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +19,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final TokenBlacklist tokenBlacklist;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, TokenBlacklist tokenBlacklist) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, TokenBlacklist tokenBlacklist, RepMusicRepository repMusicRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -90,5 +87,23 @@ public class AuthService {
 
     }
 
+
+    //회원탈퇴
+    @Transactional
+    public void withdraw(WithdrawRequestDto requestDto, String authHeader){
+
+        //유저 조회
+        User user=userRepository.findByUserId(requestDto.getUserId()).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //비밀번호 일치 확인
+        if(!passwordEncoder.matches(requestDto.getPassword(),user.getPassword())){
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+        }
+
+        //토큰 만료시키기
+         logout(authHeader);
+
+        userRepository.delete(user);
+    }
 
 }
