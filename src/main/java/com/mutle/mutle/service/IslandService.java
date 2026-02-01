@@ -2,6 +2,7 @@ package com.mutle.mutle.service;
 
 import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.Music;
+import com.mutle.mutle.entity.Platform;
 import com.mutle.mutle.entity.RepMusic;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
@@ -132,6 +133,25 @@ public class IslandService {
         repMusicRepository.deleteByUser(user);
     }
 
+    //platforms 수정
+    @Transactional
+    public void updatePlatforms(Long id, PlatformsUpdatedRequestDto requestDto) {
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        platformRepository.deleteAllByUser(user);
+
+        if (requestDto.getPlatforms() != null) {
+            List<Platform> platforms = requestDto.getPlatforms().stream()
+                    .map(dto -> Platform.builder()
+                            .user(user)
+                            .platformName(dto.getPlatformName())
+                            .platformNickname(dto.getPlatformNickname())
+                            .build())
+                    .toList();
+            platformRepository.saveAll(platforms);
+        }
+    }
 
 
 //    //프로필 수정
