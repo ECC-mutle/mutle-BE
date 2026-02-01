@@ -15,13 +15,4 @@ public class PlatformsUpdatedRequestDto {
     @Valid
     private List<PlatformDto> platforms;
 
-    @Getter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class PlatformDto {
-        @NotBlank(message = "ISLAND_301")
-        private String platformName;
-
-        private String platformNickname;
-    }
 }
