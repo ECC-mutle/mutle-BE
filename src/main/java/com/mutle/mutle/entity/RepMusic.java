@@ -34,10 +34,14 @@ public class RepMusic {
     private Timestamp repMusicUpdatedAt;
 
     @OneToOne
-    @JoinColumn(name="id")
+    @JoinColumn(name = "id", unique = true)
     User user;
 
     @OneToOne
     @JoinColumn(name="music_id")
     Music music;
+
+    public void updateMusic(Music music) {
+        this.music = music;
+    }
 }

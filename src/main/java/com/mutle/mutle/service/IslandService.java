@@ -1,11 +1,13 @@
 package com.mutle.mutle.service;
 
 import com.mutle.mutle.dto.*;
+import com.mutle.mutle.entity.Music;
 import com.mutle.mutle.entity.RepMusic;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
 import com.mutle.mutle.repository.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +89,38 @@ public class IslandService {
                 .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
         user.updateBio(newBio);
+    }
+
+    //repMusic 수정
+    public void updateRepMusic(Long id, @Valid RepMusicUpdateRequestDto requestDto) {
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //repMusic(music)이 db에 있는지 확인, 없으면 생성
+        Music music=musicRepository
+                    .findByTrackNameAndArtistName(requestDto.getTrackName(), requestDto.getArtistName())
+                    .orElseGet(()->
+                            musicRepository.save(
+                                    Music.builder()
+                                            .trackName(requestDto.getTrackName())
+                                            .artistName(requestDto.getArtistName())
+                                            .artworkUrl60(requestDto.getArtworkUrl60())
+                                            .build()
+                            )
+                    );
+
+        //repMusic이 db에 있는지 확인, 없으면 생성
+        RepMusic repMusic=repMusicRepository.findByUser(user)
+                    .orElseGet(()->
+                            RepMusic.builder()
+                                    .user(user)
+                                    .build());
+
+        //repMusic을 music으로 update
+        repMusic.updateMusic(music);
+        //저장
+        repMusicRepository.save(repMusic);
+
     }
 //    //프로필 수정
 //    @Transactional
