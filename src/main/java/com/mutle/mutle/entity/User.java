@@ -74,4 +74,8 @@ public class User {
     public void updatePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+
+    public void updateBio(String bio) {
+        this.bio = bio;
+    }
 }
