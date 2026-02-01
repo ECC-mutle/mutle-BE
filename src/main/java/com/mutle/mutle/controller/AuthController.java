@@ -67,7 +67,7 @@ public class AuthController {
         return  ApiResponse.success("비밀번호가 성공적으로 변경되었습니다.", null);
     }
 
-    private Long getUserIdFromToken(@RequestHeader("Authorization") String token){
+    private Long getUserIdFromToken(String token){
         if (token == null || !token.startsWith("Bearer ")) {
             throw new CustomException(ErrorCode.TOKEN_ERROR);
             }
