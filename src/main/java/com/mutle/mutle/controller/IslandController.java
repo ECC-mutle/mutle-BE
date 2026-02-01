@@ -58,7 +58,7 @@ public class IslandController {
     }
 
     @PutMapping("/bio")
-    public ApiResponse<IslandResponseDto> updateBio(
+    public ApiResponse<Void> updateBio(
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody BioUpdateRequestDto requestDto){
 
@@ -69,12 +69,24 @@ public class IslandController {
     }
 
     @PutMapping("/rep-music")
-    public ApiResponse<IslandResponseDto> updateRepMusic(
+    public ApiResponse<Void> updateRepMusic(
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody RepMusicUpdateRequestDto requestDto){
+
         Long id=getIdFromToken(authHeader);
         islandService.updateRepMusic(id, requestDto);
+
         return ApiResponse.success("대표곡이 성공적으로 수정되었습니다.", null);
+    }
+
+    @DeleteMapping("/rep-music")
+    public ApiResponse<Void> deleteRepMusic(
+            @RequestHeader("Authorization") String authHeader){
+
+        Long id=getIdFromToken(authHeader);
+        islandService.deleteRepMusic(id);
+
+        return ApiResponse.success("대표곡이 성공적으로 삭제되었습니다.", null);
     }
 
 //    @PatchMapping

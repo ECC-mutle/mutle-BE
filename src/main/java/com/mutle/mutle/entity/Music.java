@@ -2,6 +2,7 @@ package com.mutle.mutle.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
@@ -19,7 +20,7 @@ public class Music {
     @Id
     @GeneratedValue
     @Column(name = "music_id")
-    private Long MusicId;
+    private Long musicId;
 
     @Column(name = "track_name", nullable = false, length = 200)
     private String trackName;
@@ -30,10 +31,12 @@ public class Music {
     @Column(name = "artwork_url_60", nullable = false, length = 500)
     private String artworkUrl60;
 
+    @CreationTimestamp
     @Column(name = "music_created_at", nullable = false, updatable = false)
     private Timestamp musicCreatedAt;
 
     @UpdateTimestamp
     @Column(name = "music_updated_at", nullable = false)
     private Timestamp musicUpdatedAt;
+
 }

@@ -7,7 +7,6 @@ import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
 import com.mutle.mutle.repository.*;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,7 +91,8 @@ public class IslandService {
     }
 
     //repMusic 수정
-    public void updateRepMusic(Long id, @Valid RepMusicUpdateRequestDto requestDto) {
+    @Transactional
+    public void updateRepMusic(Long id, RepMusicUpdateRequestDto requestDto) {
         User user=userRepository.findById(id)
                 .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -122,6 +122,18 @@ public class IslandService {
         repMusicRepository.save(repMusic);
 
     }
+
+    //repMusic 삭제
+    @Transactional
+    public void deleteRepMusic(Long id) {
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        repMusicRepository.deleteByUser(user);
+    }
+
+
+
 //    //프로필 수정
 //    @Transactional
 //    public void updateIsland(Long id, IslandUpdateRequestDto requestDto){
