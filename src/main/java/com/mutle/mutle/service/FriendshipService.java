@@ -1,6 +1,8 @@
 package com.mutle.mutle.service;
 
 
+import com.mutle.mutle.dto.FriendRequestCancelResponse;
+import com.mutle.mutle.dto.FriendRequestResponse;
 import com.mutle.mutle.dto.FriendSearchResponse;
 import com.mutle.mutle.entity.*;
 import com.mutle.mutle.repository.FriendShipRepository;
@@ -11,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -67,14 +71,82 @@ public class FriendshipService {
                 .build();
     }
 
-
     // 친구 신청 보내기
     @Transactional
-    public void sendFriendRequest() {}
+    public FriendRequestResponse sendFriendRequest(Long meId, Long targetId) {
+
+        // 유저 확인
+        User me = userRepository.findById(meId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User target = userRepository.findById(targetId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 관계 확인
+        Optional<FriendShip> existingRelation = friendShipRepository.findRelation(meId, targetId);
+
+        if (existingRelation.isPresent()) {
+            FriendShip relation = existingRelation.get();
+            FriendshipStatus status = relation.getFriendshipStatus();
+
+            if (status == FriendshipStatus.ACCEPTED) {
+                throw new IllegalArgumentException("이미 친구인 사용자입니다.");
+            }
+            if (relation.getRequester().getId().equals(meId)) {
+                throw new IllegalArgumentException("이미 신청을 보냈습니다.");
+            } else {
+                throw new IllegalArgumentException("이미 신청을 받았습니다.");
+            }
+        }
+
+        // 3. 신청 저장
+        FriendShip newRequest = FriendShip.builder()
+                .requester(me)
+                .receiver(target)
+                .friendshipStatus(FriendshipStatus.ACCEPTED)
+                .friendshipStatus(FriendshipStatus.valueOf("REQUEST_SENT"))
+                .requestedAt(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+
+        FriendShip saved = friendShipRepository.save(newRequest);
+
+        return FriendRequestResponse.builder()
+                .friendRequestId(saved.getFriendRequestId())
+                .targetNickname(target.getNickname())
+                .friendshipStatus("REQUEST_SENT")
+                .friendshipCreatedAt(Timestamp.valueOf(saved.getRequestedAt().toLocalDateTime()))
+                .build();
+    }
 
     // 친구 신청 취소
     @Transactional
-    public void cancelFriendRequest() {}
+    public FriendRequestCancelResponse cancelFriendRequest(Long meId, Long requestId) {
+
+        // 신청 정보 확인
+        FriendShip request = friendShipRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신청 정보입니다."));
+
+        // 본인이 보낸 신청인지 확인
+        if (!request.getRequester().getId().equals(meId)) {
+            throw new IllegalArgumentException("본인이 보낸 신청만 취소할 수 있습니다.");
+        }
+
+        // 취소 가능한 상태인지 확인
+        if (request.getFriendshipStatus() != FriendshipStatus.valueOf("REQUEST_SENT")) {
+            throw new IllegalArgumentException("이미 수락되었거나 취소할 수 없는 상태입니다.");
+        }
+
+        // 4. 삭제 처리
+        User target = request.getReceiver();
+        friendShipRepository.delete(request);
+
+        return FriendRequestCancelResponse.builder()
+                .friendRequestId(requestId)
+                .targetId(target.getId())
+                .targetNickname(target.getNickname())
+                .friendshipStatus("NONE")
+                .cancelledAt(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+    }
 
     // 받은 친구 신청 목록 조회
     public void getReceivedRequests() {}
@@ -91,9 +163,9 @@ public class FriendshipService {
     public void deleteFriend() {}
 
     // 친구 관계 판단
-    private String determineFriendshipStatus(Long meId, Long youId) {
+    private String determineFriendshipStatus(Long meId, Long targetId) {
 
-        Optional<FriendShip> friendship = friendShipRepository.findRelation(meId, youId);
+        Optional<FriendShip> friendship = friendShipRepository.findRelation(meId, targetId);
 
         if (friendship.isEmpty()) return "NONE"; // 아무 관계 X
 
