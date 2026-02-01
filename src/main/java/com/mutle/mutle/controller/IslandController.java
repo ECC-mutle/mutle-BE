@@ -96,17 +96,5 @@ public class IslandController {
 
         return ApiResponse.success("플랫폼 정보가 성공적으로 수정되었습니다.", null);
     }
-
-//    @PatchMapping
-//    public ApiResponse<Void> updateIsland(
-//            @RequestHeader("Authorization") String authHeader,
-//            @Valid @RequestBody IslandUpdateRequestDto requestDto) {
-//
-//        Long id = getIdFromToken(authHeader);
-//
-//        islandService.updateIsland(id, requestDto);
-//
-//        return ApiResponse.success("섬 정보가 성공적으로 수정되었습니다.", null);
-//    }
 }
 
