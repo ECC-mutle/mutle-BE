@@ -1,9 +1,7 @@
 package com.mutle.mutle.service;
 
 
-import com.mutle.mutle.dto.FriendRequestCancelResponse;
-import com.mutle.mutle.dto.FriendRequestResponse;
-import com.mutle.mutle.dto.FriendSearchResponse;
+import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.*;
 import com.mutle.mutle.repository.FriendShipRepository;
 import com.mutle.mutle.repository.RepMusicRepository;
@@ -15,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -73,7 +73,7 @@ public class FriendshipService {
 
     // 친구 신청 보내기
     @Transactional
-    public FriendRequestResponse sendFriendRequest(Long meId, Long targetId) {
+    public FriendRequestResponse sendFriendRequest(Long meId, Long targetId)    {
 
         // 유저 확인
         User me = userRepository.findById(meId)
@@ -149,18 +149,106 @@ public class FriendshipService {
     }
 
     // 받은 친구 신청 목록 조회
-    public void getReceivedRequests() {}
+    public List<ReceivedRequestResponse> getReceivedRequests(Long id) {
+
+        List<FriendShip> requests = friendShipRepository.findByReceiverIdAndFriendshipStatus(
+                id, FriendshipStatus.valueOf("REQUEST_SENT"));
+
+        return requests.stream().map(request -> {
+            User sender = request.getRequester();
+
+            Optional<RepMusic> repMusicOpt = repMusicRepository.findByUser(sender);
+
+            return ReceivedRequestResponse.builder()
+                    .friendRequestId(request.getFriendRequestId())
+                    .id(sender.getId())
+                    .nickname(sender.getNickname())
+                    .profileImage(sender.getProfileImage())
+                    .bio(sender.getBio())
+                    .requestedAt(Timestamp.valueOf(request.getRequestedAt().toLocalDateTime()))
+                    .repMusicInfo(repMusicOpt.map(rm ->
+                            ReceivedRequestResponse.RepMusicInfo.builder()
+                                    .trackName(rm.getMusic().getTrackName())
+                                    .artistName(rm.getMusic().getArtistName())
+                                    .build()
+                    ).orElse(null))
+                    .build();
+        }).collect(Collectors.toList());
+    }
 
     // 친구 신청 수락/거절
     @Transactional
-    public void respondFriendRequest() {}
+    public FriendResponse respondFriendRequest(Long id, Long requestId, FriendRespondRequest body) {
+        FriendShip request = friendShipRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신청 정보입니다."));
+
+        // 내게 온 신청인지 확인
+        if (!request.getReceiver().getId().equals(id)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        // 상태 변경
+        if ("ACCEPTED".equals(body.getFriendshipStatus())) {
+            request.setFriendshipStatus(FriendshipStatus.ACCEPTED);
+        } else {
+            friendShipRepository.delete(request);
+            return null;
+        }
+
+        return FriendResponse.builder()
+                .friendRequestId(request.getFriendRequestId())
+                .id(request.getRequester().getId())
+                .nickname(request.getRequester().getNickname())
+                .friendshipStatus("ACCEPTED")
+                .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+    }
 
     // 친구 목록 조회
-    public void getFriendList() {}
+    public List<FriendListResponse> getFriendList(Long id) {
+
+        List<FriendShip> friendships = friendShipRepository.findByAcceptedFriends(id);
+        return friendships.stream().map(fs -> {
+
+            User target = fs.getRequester().getId().equals(id) ? fs.getReceiver() : fs.getRequester();
+
+            Optional<RepMusic> repMusicOpt = repMusicRepository.findByUser(target);
+
+            return FriendListResponse.builder()
+                    .id(target.getId())
+                    .nickname(target.getNickname())
+                    .profileImage(target.getProfileImage())
+                    .bio(target.getBio())
+                    .repMusicInfo(repMusicOpt.map(rm ->
+                            FriendListResponse.RepMusicInfo.builder()
+                                    .trackName(rm.getMusic().getTrackName())
+                                    .artistName(rm.getMusic().getArtistName())
+                                    .artworkUrl60(rm.getMusic().getArtworkUrl60())
+                                    .build()
+                    ).orElse(null))
+                    .build();
+        }).collect(Collectors.toList());
+    }
 
     // 친구 삭제
     @Transactional
-    public void deleteFriend() {}
+    public FriendDeleteResponse deleteFriend(Long id, Long targetId) {
+        // 친구 관계 확인
+        FriendShip friendship = friendShipRepository.findRelation(id, targetId)
+                .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.ACCEPTED)
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 친구 관계가 존재하지 않습니다."));
+
+        User target = friendship.getRequester().getId().equals(id) ? friendship.getReceiver() : friendship.getRequester();
+
+        // 2. 삭제 처리
+        friendShipRepository.delete(friendship);
+
+        return FriendDeleteResponse.builder()
+                .targetId(target.getId())
+                .targetNickname(target.getNickname())
+                .unfriendedAt(Timestamp.valueOf(LocalDateTime.now()))
+                .build();
+    }
 
     // 친구 관계 판단
     private String determineFriendshipStatus(Long meId, Long targetId) {

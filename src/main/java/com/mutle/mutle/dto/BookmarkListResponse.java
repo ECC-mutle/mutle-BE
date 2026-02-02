@@ -25,5 +25,6 @@ public class BookmarkListResponse {
     public static class MusicInfo {
         private String trackName;
         private String artistName;
+
     }
 }
