@@ -74,5 +74,12 @@ public class AuthController {
         Long id=jwtUtil.getId(token.substring(7));
         return id;
     }
+
+    @GetMapping("/kakao")
+    public ApiResponse<LoginResponseDto> kakaoLogin(@RequestParam String code) {
+        LoginResponseDto data = authService.kakaoLogin(code);
+
+        return ApiResponse.success("카카오 로그인이 성공적으로 완료되었습니다.", data);
+    }
 }
 
