@@ -25,3 +25,13 @@ jwt:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+kakao:
+  client-id:
+  redirect-url:
+  admin-key:
+
+google:
+  client-id:
+  client-secret:
+  redirect-url:
