@@ -14,6 +14,10 @@ public class BottleCreateRequest {
     private String memo;
     private Boolean isShared;
 
+    public String getMemo() {
+        return memo;
+    }
+
     @Getter
     @NoArgsConstructor
     public static class MusicInfo {

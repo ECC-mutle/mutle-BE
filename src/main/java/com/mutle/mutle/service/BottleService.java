@@ -2,6 +2,8 @@ package com.mutle.mutle.service;
 
 import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.*;
+import com.mutle.mutle.exception.CustomException;
+import com.mutle.mutle.exception.ErrorCode;
 import com.mutle.mutle.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,15 +42,26 @@ public class BottleService {
 
         // 유저 조회 및 예외 발생
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 질문 조회 및 예외 발생
         TodayQuest quest = todayQuestRepository.findByQuestionId(questionId)
-                .orElseThrow(() -> new IllegalArgumentException("오늘의 질문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_QUEST_NOT_FOUND));
 
         // 음악 조회 및 예외 발생
         Music music = musicRepository.findByMusicId(musicId)
-                .orElseThrow(() -> new IllegalArgumentException("올바르지 않은 음악 정보입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.MUSIC_NOT_FOUND));
+
+        // 글자 수 제한 체크
+        if (request.getMemo().length() > 200) {
+            throw new CustomException(ErrorCode.CONTENT_TOO_LONG);
+        }
+
+        // 오늘 이미 보냈는지 체크
+        boolean alreadySent = bottleRepository.existsByIdAndCreatedAtAfter(id, LocalDateTime.now().with(LocalTime.MIN));
+        if (alreadySent) {
+            throw new CustomException(ErrorCode.ALREADY_SENT_TODAY);
+        }
 
         // 유리병 엔티티 생성
         Bottle bottle = Bottle.builder()
@@ -59,6 +74,7 @@ public class BottleService {
                 .artistName(request.getMusicInfo().getArtistName())
                 .artworkUrl60(request.getMusicInfo().getArtworkUrl60())
                 .build();
+
         // 유리병 엔티티를 DB에 저장
         Bottle savedBottle = bottleRepository.save(bottle);
 
@@ -70,8 +86,7 @@ public class BottleService {
     public BottleRandomResponse getBottle(Long id) {
         // 랜덤 유리병 조회
         Bottle randomBottle = bottleRepository.findRandomBottle(id)
-                .orElseThrow(() -> new IllegalArgumentException("도착한 유리병이 없습니다."));
-
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_ARRIVED));
         // 반환
         return BottleRandomResponse.fromEntity(randomBottle, id);
     }
@@ -81,15 +96,15 @@ public class BottleService {
     public BottleReactionCreateResponse addReaction(Long id, Long bottleId) {
         // 유저 조회 및 예외 발생
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 유리병 조회 및 예외 발생
         Bottle bottle = bottleRepository.findByBottleId(bottleId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유리병입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
 
         // 중복 확인
         if (reactionRepository.existsByUserAndBottle(user, bottle)) {
-            throw new IllegalArgumentException("이미 반응을 남긴 유리병입니다.");
+            throw new CustomException(ErrorCode.REACTION_DUPLICATION);
         }
 
         // 반응 엔티티 생성 및 저장
@@ -117,7 +132,7 @@ public class BottleService {
 
         // 유리병 조회 및 예외 발생
         Bottle bottle = bottleRepository.findByBottleId(bottleId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유리병입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
 
         // 반환
         return BottleReactionGetResponse.builder()
@@ -133,7 +148,7 @@ public class BottleService {
 
         // 질문 조회
         TodayQuest quest = todayQuestRepository.findByDate(today)
-                .orElseThrow(() -> new IllegalArgumentException("오늘의 질문을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_QUEST_NOT_FOUND));
 
         // 반환
         return TodayQuestResponse.fromEntity(quest);
@@ -143,8 +158,13 @@ public class BottleService {
     public BottleDetailResponse getBottleDetail(Long bottleId, Long id) {
 
         // 유리병 조회 및 예외 발생
-        Bottle bottle = bottleRepository.findByBottleId(bottleId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 유리병입니다."));
+        Bottle bottle = bottleRepository.findById(bottleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
+
+        // 생성일로부터 7일이 지났는지 확인
+        if (bottle.getBottleCreatedAt().toLocalDateTime().isBefore(LocalDateTime.now().minusDays(7))) {
+            throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
+        }
 
         // 반환
         return BottleDetailResponse.fromEntity(bottle, id);
@@ -156,15 +176,15 @@ public class BottleService {
 
         // 유리병 조회 및 예외 발생
         Bottle bottle = bottleRepository.findByBottleId(bottleId)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 유리병입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
 
         // 유저 조회 및 예외 발생
         User user = userRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 중복 확인
         if (bookmarkRepository.existsByUserAndBottle(user, bottle)) {
-            throw new IllegalArgumentException("이미 저장된 유리병입니다.");
+            throw new CustomException(ErrorCode.BOOKMARK_DUPLICATION);
         }
 
         // 저장

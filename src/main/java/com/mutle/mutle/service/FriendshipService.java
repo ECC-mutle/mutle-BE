@@ -3,6 +3,8 @@ package com.mutle.mutle.service;
 
 import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.*;
+import com.mutle.mutle.exception.CustomException;
+import com.mutle.mutle.exception.ErrorCode;
 import com.mutle.mutle.repository.FriendShipRepository;
 import com.mutle.mutle.repository.RepMusicRepository;
 import com.mutle.mutle.repository.UserRepository;
@@ -37,15 +39,12 @@ public class FriendshipService {
         //이메일 검색
         if ("EMAIL".equals(type)) {
             targetUser = userRepository.findByEmail(keyword)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 정보를 가진 사용자가 존재하지 않습니다."));
-        } //id 검색
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));        } //id 검색
         else if ("ID".equals(type)) {
             targetUser = userRepository.findByUserId(keyword)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 정보를 가진 사용자가 존재하지 않습니다."));
-        } // 검색 결과 없음
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));        } // 검색 결과 없음
         else {
-            throw new IllegalArgumentException("잘못된 검색 조건입니다.");
-        }
+            throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);        }
 
         // 관계 판단
         String status = determineFriendshipStatus(currentUserId, targetUser.getId());
@@ -53,7 +52,7 @@ public class FriendshipService {
         // 대표곡 조회
         Optional<RepMusic> repMusicOpt = repMusicRepository.findByUser(targetUser);
 
-        //반환
+        // 반환
         return FriendSearchResponse.builder()
                 .id(targetUser.getId())
                 .nickname(targetUser.getNickname())
@@ -61,13 +60,13 @@ public class FriendshipService {
                 .bio(targetUser.getBio())
                 .friendshipStatus(status)
                 .repMusicInfo(repMusicOpt.map(rm -> {
-                    Music m = rm.getMusic(); // RepMusic 안에 담긴 Music 엔티티 꺼내기
+                    Music m = rm.getMusic();
                     return FriendSearchResponse.RepMusicInfo.builder()
                             .trackName(m.getTrackName())
                             .artistName(m.getArtistName())
                             .artworkUrl60(m.getArtworkUrl60())
                             .build();
-                }).orElse(null)) // 대표곡이 없으면 null
+                }).orElse(null))
                 .build();
     }
 
@@ -77,9 +76,9 @@ public class FriendshipService {
 
         // 유저 확인
         User me = userRepository.findById(meId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         User target = userRepository.findById(targetId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 관계 확인
         Optional<FriendShip> existingRelation = friendShipRepository.findRelation(meId, targetId);
@@ -89,12 +88,12 @@ public class FriendshipService {
             FriendshipStatus status = relation.getFriendshipStatus();
 
             if (status == FriendshipStatus.ACCEPTED) {
-                throw new IllegalArgumentException("이미 친구인 사용자입니다.");
+                throw new CustomException(ErrorCode.FRIEND_ALREADY_EXISTS);
             }
             if (relation.getRequester().getId().equals(meId)) {
-                throw new IllegalArgumentException("이미 신청을 보냈습니다.");
+                throw new CustomException(ErrorCode.FRIEND_REQUEST_ALREADY_SENT);
             } else {
-                throw new IllegalArgumentException("이미 신청을 받았습니다.");
+                throw new CustomException(ErrorCode.FRIEND_REQUEST_ALREADY_RECEIVED);
             }
         }
 
@@ -123,16 +122,16 @@ public class FriendshipService {
 
         // 신청 정보 확인
         FriendShip request = friendShipRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신청 정보입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.REQUEST_NOT_FOUND));
 
         // 본인이 보낸 신청인지 확인
         if (!request.getRequester().getId().equals(meId)) {
-            throw new IllegalArgumentException("본인이 보낸 신청만 취소할 수 있습니다.");
+            throw new CustomException(ErrorCode.CANNOT_CANCEL_OTHERS_REQUEST);
         }
 
         // 취소 가능한 상태인지 확인
         if (request.getFriendshipStatus() != FriendshipStatus.valueOf("REQUEST_SENT")) {
-            throw new IllegalArgumentException("이미 수락되었거나 취소할 수 없는 상태입니다.");
+            throw new CustomException(ErrorCode.ALREADY_PROCESSED_REQUEST);
         }
 
         // 4. 삭제 처리
@@ -180,11 +179,15 @@ public class FriendshipService {
     @Transactional
     public FriendResponse respondFriendRequest(Long id, Long requestId, FriendRespondRequest body) {
         FriendShip request = friendShipRepository.findById(requestId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신청 정보입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.REQUEST_NOT_FOUND));
 
         // 내게 온 신청인지 확인
         if (!request.getReceiver().getId().equals(id)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new CustomException(ErrorCode.TOKEN_ERROR);
+        }
+
+        if (request.getFriendshipStatus() != FriendshipStatus.REQUEST_SENT) {
+            throw new CustomException(ErrorCode.ALREADY_PROCESSED_REQUEST);
         }
 
         // 상태 변경
@@ -236,7 +239,7 @@ public class FriendshipService {
         // 친구 관계 확인
         FriendShip friendship = friendShipRepository.findRelation(id, targetId)
                 .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.ACCEPTED)
-                .orElseThrow(() -> new IllegalArgumentException("삭제할 친구 관계가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.FRIEND_RELATION_NOT_FOUND));
 
         User target = friendship.getRequester().getId().equals(id) ? friendship.getReceiver() : friendship.getRequester();
 
