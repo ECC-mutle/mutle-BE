@@ -72,16 +72,16 @@ public class FriendshipService {
 
     // 친구 신청 보내기
     @Transactional
-    public FriendRequestResponse sendFriendRequest(Long meId, Long targetId)    {
+    public FriendRequestResponse sendFriendRequest(Long id, Long targetId)    {
 
         // 유저 확인
-        User me = userRepository.findById(meId)
+        User me = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         User target = userRepository.findById(targetId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 관계 확인
-        Optional<FriendShip> existingRelation = friendShipRepository.findRelation(meId, targetId);
+        Optional<FriendShip> existingRelation = friendShipRepository.findRelation(id, targetId);
 
         if (existingRelation.isPresent()) {
             FriendShip relation = existingRelation.get();
@@ -90,7 +90,7 @@ public class FriendshipService {
             if (status == FriendshipStatus.ACCEPTED) {
                 throw new CustomException(ErrorCode.FRIEND_ALREADY_EXISTS);
             }
-            if (relation.getRequester().getId().equals(meId)) {
+            if (relation.getRequester().getId().equals(id)) {
                 throw new CustomException(ErrorCode.FRIEND_REQUEST_ALREADY_SENT);
             } else {
                 throw new CustomException(ErrorCode.FRIEND_REQUEST_ALREADY_RECEIVED);
@@ -118,14 +118,14 @@ public class FriendshipService {
 
     // 친구 신청 취소
     @Transactional
-    public FriendRequestCancelResponse cancelFriendRequest(Long meId, Long requestId) {
+    public FriendRequestCancelResponse cancelFriendRequest(Long id, Long requestId) {
 
         // 신청 정보 확인
         FriendShip request = friendShipRepository.findById(requestId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REQUEST_NOT_FOUND));
 
         // 본인이 보낸 신청인지 확인
-        if (!request.getRequester().getId().equals(meId)) {
+        if (!request.getRequester().getId().equals(id)) {
             throw new CustomException(ErrorCode.CANNOT_CANCEL_OTHERS_REQUEST);
         }
 
@@ -254,9 +254,9 @@ public class FriendshipService {
     }
 
     // 친구 관계 판단
-    private String determineFriendshipStatus(Long meId, Long targetId) {
+    private String determineFriendshipStatus(Long id, Long targetId) {
 
-        Optional<FriendShip> friendship = friendShipRepository.findRelation(meId, targetId);
+        Optional<FriendShip> friendship = friendShipRepository.findRelation(id, targetId);
 
         if (friendship.isEmpty()) return "NONE"; // 아무 관계 X
 
@@ -264,7 +264,7 @@ public class FriendshipService {
         if (relation.getFriendshipStatus() == FriendshipStatus.ACCEPTED) return "ACCEPTED"; // 이미 친구
 
         // 누가 먼저 신청했는지에 따라 SENT / RECEIVED
-        return relation.getRequester().getId().equals(meId) ? "REQUEST_SENT" : "REQUEST_RECEIVED";
+        return relation.getRequester().getId().equals(id) ? "REQUEST_SENT" : "REQUEST_RECEIVED";
     }
 
 }

@@ -1,76 +1,97 @@
 package com.mutle.mutle.controller;
 
 import com.mutle.mutle.dto.*;
+import com.mutle.mutle.exception.CustomException;
+import com.mutle.mutle.exception.ErrorCode;
+import com.mutle.mutle.jwt.JwtUtil;
 import com.mutle.mutle.service.BottleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bottles")
 @RequiredArgsConstructor
 public class BottleApiController {
+
     private final BottleService bottleService;
+    private final JwtUtil jwtUtil;
+
+    private Long getUserIdFromToken(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new CustomException(ErrorCode.TOKEN_ERROR);
+        }
+        return jwtUtil.getId(token.substring(7));
+    }
 
     // 유리병 보내기
     @PostMapping
-    public ResponseEntity<BottleCreateResponse> createBottle(@RequestBody BottleCreateRequest request) {
-        BottleCreateResponse response = bottleService.createBottle(1L, 101L, 1L, request);
-        return ResponseEntity.ok(response);
+    public ApiResponse<BottleCreateResponse> createBottle(
+            @RequestHeader("Authorization") String token,
+            @RequestBody BottleCreateRequest request) {
+        Long id = getUserIdFromToken(token);
+        BottleCreateResponse data = bottleService.createBottle(id, request.getQuestionId(), request.getMusicInfo().getMusicId(), request);
+        return ApiResponse.success("유리병을 성공적으로 보냈습니다.", data);
     }
 
     // 유리병 받기
     @GetMapping("/random")
-    public ResponseEntity<BottleRandomResponse> getRandomBottle() {
-        BottleRandomResponse response = bottleService.getBottle(1L);
-        return ResponseEntity.ok(response);
+    public ApiResponse<BottleRandomResponse> getRandomBottle(@RequestHeader("Authorization") String token) {
+        Long id = getUserIdFromToken(token);
+        BottleRandomResponse data = bottleService.getBottle(id);
+        return ApiResponse.success("유리병 획득 성공", data);
     }
 
     // 오늘의 질문 조회
     @GetMapping("/todayQuest")
-    public ResponseEntity<Map<String, Object>> getTodayQuest() {
-        TodayQuestResponse response = bottleService.getTodayQuest();
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", response);
-        return ResponseEntity.ok(result);
+    public ApiResponse<TodayQuestResponse> getTodayQuest() {
+        TodayQuestResponse data = bottleService.getTodayQuest();
+        return ApiResponse.success("오늘의 질문 조회 성공", data);
     }
 
     // 유리병 상세페이지 조회
     @GetMapping("/{bottleId}")
-    public ResponseEntity<BottleDetailResponse> getBottleDetail(@PathVariable Long bottleId) {
-        BottleDetailResponse response = bottleService.getBottleDetail(bottleId, 1L);
-        return ResponseEntity.ok(response);
+    public ApiResponse<BottleDetailResponse> getBottleDetail(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long bottleId) {
+        Long id = getUserIdFromToken(token);
+        BottleDetailResponse data = bottleService.getBottleDetail(bottleId, id);
+        return ApiResponse.success("상세 조회 성공", data);
     }
 
     // 반응 남기기
     @PostMapping("/{bottleId}/reaction")
-    public ResponseEntity<BottleReactionCreateResponse> addReaction(@PathVariable Long bottleId) {
-        BottleReactionCreateResponse response = bottleService.addReaction(1L, bottleId);
-        return ResponseEntity.ok(response);
+    public ApiResponse<BottleReactionCreateResponse> addReaction(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long bottleId) {
+        Long id = getUserIdFromToken(token);
+        BottleReactionCreateResponse data = bottleService.addReaction(id, bottleId);
+        return ApiResponse.success("반응 남기기 성공", data);
     }
 
     // 반응 조회
     @GetMapping("/{bottleId}/reaction")
-    public ResponseEntity<BottleReactionGetResponse> getReactions(@PathVariable Long bottleId) {
-        BottleReactionGetResponse response = bottleService.getReactions(bottleId);
-        return ResponseEntity.ok(response);
+    public ApiResponse<BottleReactionGetResponse> getReactions(@PathVariable Long bottleId) {
+        BottleReactionGetResponse data = bottleService.getReactions(bottleId);
+        return ApiResponse.success("반응 조회 성공", data);
     }
 
     // 북마크 추가
     @PostMapping("/{bottleId}/bookmark")
-    public ResponseEntity<BookmarkCreateResponse> addBookmark(@PathVariable Long bottleId) {
-        BookmarkCreateResponse response = bottleService.addBookmark(bottleId, 1L);
-        return ResponseEntity.ok(response);
+    public ApiResponse<BookmarkCreateResponse> addBookmark(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long bottleId) {
+        Long id = getUserIdFromToken(token);
+        BookmarkCreateResponse data = bottleService.addBookmark(bottleId, id);
+        return ApiResponse.success("북마크 저장 성공", data);
     }
 
     // 북마크 목록 조회
     @GetMapping("/bookmarks")
-    public ResponseEntity<List<BookmarkListResponse>> getBookmarks() {
-        List<BookmarkListResponse> response = bottleService.getBookmarks(1L);
-        return ResponseEntity.ok(response);
+    public ApiResponse<List<BookmarkListResponse>> getBookmarks(@RequestHeader("Authorization") String token) {
+        Long id = getUserIdFromToken(token);
+        List<BookmarkListResponse> data = bottleService.getBookmarks(id);
+        return ApiResponse.success("북마크 목록 조회 성공", data);
     }
 }

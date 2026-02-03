@@ -1,9 +1,11 @@
 package com.mutle.mutle.controller;
 
 import com.mutle.mutle.dto.*;
+import com.mutle.mutle.exception.CustomException;
+import com.mutle.mutle.exception.ErrorCode;
+import com.mutle.mutle.jwt.JwtUtil;
 import com.mutle.mutle.service.FriendshipService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,60 +16,82 @@ import java.util.List;
 public class FriendshipApiController {
 
     private final FriendshipService friendshipService;
+    private final JwtUtil jwtUtil;
 
-    // 1. 친구 이메일/ID 검색
+    private Long getUserIdFromToken(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new CustomException(ErrorCode.TOKEN_ERROR);
+        }
+        return jwtUtil.getId(token.substring(7));
+    }
+
+    // 친구 이메일/ID 검색
     @GetMapping("/search")
-    public ResponseEntity<FriendSearchResponse> searchFriend(
-            @RequestParam Long currentUserId,
+    public ApiResponse<FriendSearchResponse> searchFriend(
+            @RequestHeader("Authorization") String token,
             @RequestParam String type,
             @RequestParam String keyword) {
-        return ResponseEntity.ok(friendshipService.searchFriend(currentUserId, type, keyword));
+        Long id = getUserIdFromToken(token);
+        FriendSearchResponse data = friendshipService.searchFriend(id, type, keyword);
+        return ApiResponse.success("사용자 검색 성공", data);
     }
 
-    // 2. 친구 신청 보내기
+    // 친구 신청 보내기
     @PostMapping("/request")
-    public ResponseEntity<FriendRequestResponse> sendFriendRequest(
-            @RequestParam Long meId,
+    public ApiResponse<FriendRequestResponse> sendFriendRequest(
+            @RequestHeader("Authorization") String token,
             @RequestBody FriendRequest request) {
-        return ResponseEntity.ok(friendshipService.sendFriendRequest(meId, request.getTargetId()));
+        Long id = getUserIdFromToken(token);
+        FriendRequestResponse data = friendshipService.sendFriendRequest(id, request.getTargetId());
+        return ApiResponse.success("친구 신청이 완료되었습니다.", data);
     }
 
-    // 3. 친구 신청 취소
+    // 친구 신청 취소
     @DeleteMapping("/requests/{requestId}")
-    public ResponseEntity<FriendRequestCancelResponse> cancelFriendRequest(
-            @RequestParam Long meId,
+    public ApiResponse<FriendRequestCancelResponse> cancelFriendRequest(
+            @RequestHeader("Authorization") String token,
             @PathVariable Long requestId) {
-        return ResponseEntity.ok(friendshipService.cancelFriendRequest(meId, requestId));
+        Long id = getUserIdFromToken(token);
+        FriendRequestCancelResponse data = friendshipService.cancelFriendRequest(id, requestId);
+        return ApiResponse.success("친구 신청 취소 완료", data);
     }
 
-    // 4. 받은 친구 신청 목록 조회
+    // 받은 친구 신청 목록 조회
     @GetMapping("/requests/received")
-    public ResponseEntity<List<ReceivedRequestResponse>> getReceivedRequests(
-            @RequestParam Long userId) {
-        return ResponseEntity.ok(friendshipService.getReceivedRequests(userId));
+    public ApiResponse<List<ReceivedRequestResponse>> getReceivedRequests(
+            @RequestHeader("Authorization") String token) {
+        Long id = getUserIdFromToken(token);
+        List<ReceivedRequestResponse> data = friendshipService.getReceivedRequests(id);
+        return ApiResponse.success("받은 신청 목록 조회 성공", data);
     }
 
-    // 5. 친구 신청 수락/거절
+    // 친구 신청 수락/거절
     @PatchMapping("/requests/{requestId}")
-    public ResponseEntity<FriendResponse> respondFriendRequest(
-            @RequestParam Long userId,
+    public ApiResponse<FriendResponse> respondFriendRequest(
+            @RequestHeader("Authorization") String token,
             @PathVariable Long requestId,
             @RequestBody FriendRespondRequest body) {
-        return ResponseEntity.ok(friendshipService.respondFriendRequest(userId, requestId, body));
+        Long id = getUserIdFromToken(token);
+        FriendResponse data = friendshipService.respondFriendRequest(id, requestId, body);
+        return ApiResponse.success("신청 처리가 완료되었습니다.", data);
     }
 
-    // 6. 친구 목록 조회
+    // 친구 목록 조회
     @GetMapping
-    public ResponseEntity<List<FriendListResponse>> getFriendList(
-            @RequestParam Long userId) {
-        return ResponseEntity.ok(friendshipService.getFriendList(userId));
+    public ApiResponse<List<FriendListResponse>> getFriendList(
+            @RequestHeader("Authorization") String token) {
+        Long id = getUserIdFromToken(token);
+        List<FriendListResponse> data = friendshipService.getFriendList(id);
+        return ApiResponse.success("친구 목록 조회 성공", data);
     }
 
-    // 7. 친구 삭제
+    // 친구 삭제
     @DeleteMapping("/{targetId}")
-    public ResponseEntity<FriendDeleteResponse> deleteFriend(
-            @RequestParam Long userId,
+    public ApiResponse<FriendDeleteResponse> deleteFriend(
+            @RequestHeader("Authorization") String token,
             @PathVariable Long targetId) {
-        return ResponseEntity.ok(friendshipService.deleteFriend(userId, targetId));
+        Long id = getUserIdFromToken(token);
+        FriendDeleteResponse data = friendshipService.deleteFriend(id, targetId);
+        return ApiResponse.success("친구 삭제 완료", data);
     }
 }

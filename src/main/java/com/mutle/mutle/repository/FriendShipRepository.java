@@ -12,9 +12,9 @@ import java.util.Optional;
 public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
 
     @Query("SELECT f FROM FriendShip f WHERE " +
-            "(f.requester.id = :meId AND f.receiver.id = :youId) OR " +
-            "(f.requester.id = :youId AND f.receiver.id = :meId)")
-    Optional<FriendShip> findRelation(Long meId, Long youId);
+            "(f.requester.id = :id AND f.receiver.id = :targetId) OR " +
+            "(f.requester.id = :targetId AND f.receiver.id = :id)")
+    Optional<FriendShip> findRelation(Long id, Long youId);
 
     List<FriendShip> findByReceiverIdAndFriendshipStatus(Long receiverId, FriendshipStatus requestSent);
 
