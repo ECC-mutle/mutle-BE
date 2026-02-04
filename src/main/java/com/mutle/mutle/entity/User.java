@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 @Getter
 @NoArgsConstructor
 
@@ -23,25 +23,25 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id")
+    @Column(name = "id")
     private Long id;
 
-    @Column(name="user_id", nullable = false, unique = true, length = 20)
+    @Column(name = "user_id", nullable = false, unique = true, length = 50)
     private String userId;
 
-    @Column(name="email", nullable = false, unique = true, length = 100)
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name="password", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name="nickname", nullable = false, length = 10)
+    @Column(name = "nickname", nullable = false, length = 10)
     private String nickname;
 
-    @Column(name="profile_image", length = 500)
+    @Column(name = "profile_image", length = 500)
     private String profileImage;
 
-    @Column(name="bio", length = 50)
+    @Column(name = "bio", length = 50)
     private String bio;
 
     @CreationTimestamp
@@ -52,6 +52,26 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "user")
-    private List<Platform> platforms=new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Platform> platforms = new ArrayList<>();
+
+    public void updateUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }

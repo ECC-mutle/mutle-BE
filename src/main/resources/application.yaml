@@ -3,9 +3,9 @@ spring:
     name: mutle
 
   datasource:
-    url: jdbc:mysql://localhost:3306/mutle
-    username: user01
-    password: 1234
+    url:
+    username:
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -20,18 +20,18 @@ spring:
 jwt:
   access-token-expiration: 3600000
   refresh-token-expiration: 1209600000
-  secret: "sdfjkqiojpiocns2431523tbuxqlkuqwyikdivckwednjmqhsxdixc8iopdkjlf235126t3qwdasknmpoiehwtpoi21342wesdqnknewpipcjpoi23740812n9jkhsgkcj7x1ftv2iuwysavgf65"
+  secret:
 
 springdoc:
   swagger-ui:
-  path: /swagger-ui.html
+    path: /swagger-ui.html
 
 kakao:
-  client-id: "0d0a97f9482a11a9b73fedadd89ae9ff"
-  redirect-url: "http://localhost:8080/api/auth/kakao"
-  admin-key: "11db2bb39da0b25123da8683621661cd"
+  client-id:
+  redirect-url:
+  admin-key:
 
 google:
-  client-id: "923537062848-7cuupfs6nseihkq5q7t095nblvq6e8lc.apps.googleusercontent.com"
-  client-secret: "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"
-  redirect-url: "http://localhost:8080/api/auth/google"
+  client-id:
+  client-secret:
+  redirect-url:
