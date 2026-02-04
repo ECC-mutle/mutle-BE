@@ -6,5 +6,5 @@ import com.mutle.mutle.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReactionRepository extends JpaRepository<Reaction, Long> {
-    boolean existsByUserAndBottle(User user, Bottle bottle);
+    boolean existsByReactorAndBottle(User user, Bottle bottle);
 }

@@ -21,5 +21,5 @@ public interface BottleRepository extends JpaRepository<Bottle, Long> {
 
     List<Bottle> bottleId(Long bottleId);
 
-    boolean existsByIdAndCreatedAtAfter(Long id, LocalDateTime dateTime);
+    boolean existsByBottleIdAndBottleCreatedAtAfter(Long BottleId, LocalDateTime dateTime);
 }

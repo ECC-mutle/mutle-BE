@@ -58,7 +58,7 @@ public class BottleService {
         }
 
         // 오늘 이미 보냈는지 체크
-        boolean alreadySent = bottleRepository.existsByIdAndCreatedAtAfter(id, LocalDateTime.now().with(LocalTime.MIN));
+        boolean alreadySent = bottleRepository.existsByBottleIdAndBottleCreatedAtAfter(id, LocalDateTime.now().with(LocalTime.MIN));
         if (alreadySent) {
             throw new CustomException(ErrorCode.ALREADY_SENT_TODAY);
         }
@@ -103,7 +103,7 @@ public class BottleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
 
         // 중복 확인
-        if (reactionRepository.existsByUserAndBottle(user, bottle)) {
+        if (reactionRepository.existsByReactorAndBottle(user, bottle)) {
             throw new CustomException(ErrorCode.REACTION_DUPLICATION);
         }
 
