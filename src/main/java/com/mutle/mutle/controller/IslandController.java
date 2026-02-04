@@ -1,12 +1,15 @@
 package com.mutle.mutle.controller;
 
 import com.mutle.mutle.dto.ApiResponse;
+import com.mutle.mutle.dto.BioUpdateRequestDto;
 import com.mutle.mutle.dto.IslandResponseDto;
+import com.mutle.mutle.dto.IslandUpdateRequestDto;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
 import com.mutle.mutle.repository.UserRepository;
 import com.mutle.mutle.service.IslandService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.mutle.mutle.jwt.JwtUtil;
@@ -46,12 +49,35 @@ public class IslandController {
         return ApiResponse.success("섬 정보가 성공적으로 조회되었습니다.",data);
     }
 
-    private Long getIdFromToken(@RequestHeader("Authorization") String token){
+    private Long getIdFromToken(String token){
         if (token == null || !token.startsWith("Bearer ")) {
             throw new CustomException(ErrorCode.TOKEN_ERROR);
         }
-        Long id=jwtUtil.getId(token.substring(7));
+        Long id=jwtUtil.getId(token.substring(7).trim());
         return id;
     }
 
+    @PutMapping("/bio")
+    public ApiResponse<IslandResponseDto> updateBio(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody BioUpdateRequestDto requestDto){
+
+        Long id=getIdFromToken(authHeader);
+        islandService.updateBio(id, requestDto.getBio());
+
+        return ApiResponse.success("자기소개가 성공적으로 수정되었습니다.", null);
+    }
+
+//    @PatchMapping
+//    public ApiResponse<Void> updateIsland(
+//            @RequestHeader("Authorization") String authHeader,
+//            @Valid @RequestBody IslandUpdateRequestDto requestDto) {
+//
+//        Long id = getIdFromToken(authHeader);
+//
+//        islandService.updateIsland(id, requestDto);
+//
+//        return ApiResponse.success("섬 정보가 성공적으로 수정되었습니다.", null);
+//    }
 }
+

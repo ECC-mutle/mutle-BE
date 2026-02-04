@@ -1,9 +1,6 @@
 package com.mutle.mutle.service;
 
-import com.mutle.mutle.dto.CalendarDto;
-import com.mutle.mutle.dto.IslandResponseDto;
-import com.mutle.mutle.dto.PlatformDto;
-import com.mutle.mutle.dto.RepMusicDto;
+import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.RepMusic;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
@@ -27,6 +24,7 @@ public class IslandService {
     private final PlatformRepository platformRepository;
     private final BottleRepository bottleRepository;
     private final FriendShipRepository friendShipRepository;
+    private final MusicRepository musicRepository;
 
     //프로필 조회
     @Transactional(readOnly = true)
@@ -82,5 +80,62 @@ public class IslandService {
     private String formatToDate(Timestamp createdAt) {
         return createdAt.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
+
+    //bio 수정
+    public void updateBio(Long id, String newBio){
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateBio(newBio);
+    }
+//    //프로필 수정
+//    @Transactional
+//    public void updateIsland(Long id, IslandUpdateRequestDto requestDto){
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+//
+//        //bio
+//        if (requestDto.getBio() != null) {
+//            user.updateBio(requestDto.getBio());
+//        }
+//
+//        //repMusic
+//        if (requestDto.getRepMusic() != null) {
+//            Music music=musicRepository
+//                    .findByTrackNameAndArtistName(requestDto.getRepMusic().getTrackName(), requestDto.getRepMusic().getArtistName())
+//                    .orElseGet(()->
+//                            musicRepository.save(
+//                                    Music.builder()
+//                                            .trackName(requestDto.getRepMusic().getTrackName())
+//                                            .artistName(requestDto.getRepMusic().getArtistName())
+//                                            .artworkUrl60(requestDto.getRepMusic().getArtworkUrl60())
+//                                            .build()
+//                            )
+//                    );
+//
+//            RepMusic repMusic=repMusicRepository.findByUser(user)
+//                    .orElseGet(()->
+//                            RepMusic.builder()
+//                                    .user(user)
+//                                    .build());
+//
+//            repMusic.updateMusic(music);
+//            repMusicRepository.save(repMusic);
+//        }
+//
+//        //platform
+//        if(requestDto.getPlatforms()!=null){
+//            List<Platform> platforms=requestDto.getPlatforms().stream()
+//                    .map(dto -> Platform.builder()
+//                            .user(user)
+//                            .platformName(dto.getPlatformName())
+//                            .platformNickname(dto.getPlatformNickname())
+//                            .build())
+//
+//                    .toList();
+//            platformRepository.saveAll(platforms);
+//        }
+//
+//    }
 
 }
