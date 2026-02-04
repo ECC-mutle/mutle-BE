@@ -2,6 +2,8 @@ package com.mutle.mutle.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
@@ -28,6 +30,7 @@ public class Reaction {
 
     @ManyToOne
     @JoinColumn(name = "id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User reactor;
 
     @Column(name = "reaction_created_at", nullable = false, updatable = false)
