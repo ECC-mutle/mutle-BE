@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RepMusicRepository extends JpaRepository<RepMusic, Long> {
-    Optional<RepMusic> findByUser(User targetUser);
+    Optional<RepMusic> findByUser(User user);
+
 }

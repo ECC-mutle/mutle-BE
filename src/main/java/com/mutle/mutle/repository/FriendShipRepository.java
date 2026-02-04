@@ -6,11 +6,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
-
 public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
 
+    @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
+            "FROM FriendShip f " +
+            "WHERE f.friendshipStatus = :status " +
+            "AND ((f.requester.id = :id1 AND f.receiver.id = :id2) " +
+            "OR (f.requester.id = :id2 AND f.receiver.id = :id1))")
+    boolean existsAcceptedFriendship(
+            @Param("id1") Long id1,
+            @Param("id2") Long id2
+    );
     @Query("SELECT f FROM FriendShip f WHERE " +
             "(f.requester.id = :id AND f.receiver.id = :targetId) OR " +
             "(f.requester.id = :targetId AND f.receiver.id = :id)")
