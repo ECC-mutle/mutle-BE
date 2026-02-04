@@ -1,6 +1,7 @@
 package com.mutle.mutle.service;
 
 import com.mutle.mutle.dto.*;
+import com.mutle.mutle.entity.Music;
 import com.mutle.mutle.entity.RepMusic;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
@@ -88,6 +89,51 @@ public class IslandService {
 
         user.updateBio(newBio);
     }
+
+    //repMusic 수정
+    @Transactional
+    public void updateRepMusic(Long id, RepMusicUpdateRequestDto requestDto) {
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        //repMusic(music)이 db에 있는지 확인, 없으면 생성
+        Music music=musicRepository
+                    .findByTrackNameAndArtistName(requestDto.getTrackName(), requestDto.getArtistName())
+                    .orElseGet(()->
+                            musicRepository.save(
+                                    Music.builder()
+                                            .trackName(requestDto.getTrackName())
+                                            .artistName(requestDto.getArtistName())
+                                            .artworkUrl60(requestDto.getArtworkUrl60())
+                                            .build()
+                            )
+                    );
+
+        //repMusic이 db에 있는지 확인, 없으면 생성
+        RepMusic repMusic=repMusicRepository.findByUser(user)
+                    .orElseGet(()->
+                            RepMusic.builder()
+                                    .user(user)
+                                    .build());
+
+        //repMusic을 music으로 update
+        repMusic.updateMusic(music);
+        //저장
+        repMusicRepository.save(repMusic);
+
+    }
+
+    //repMusic 삭제
+    @Transactional
+    public void deleteRepMusic(Long id) {
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        repMusicRepository.deleteByUser(user);
+    }
+
+
+
 //    //프로필 수정
 //    @Transactional
 //    public void updateIsland(Long id, IslandUpdateRequestDto requestDto){

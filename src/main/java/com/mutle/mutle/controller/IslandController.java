@@ -3,7 +3,7 @@ package com.mutle.mutle.controller;
 import com.mutle.mutle.dto.ApiResponse;
 import com.mutle.mutle.dto.BioUpdateRequestDto;
 import com.mutle.mutle.dto.IslandResponseDto;
-import com.mutle.mutle.dto.IslandUpdateRequestDto;
+import com.mutle.mutle.dto.RepMusicUpdateRequestDto;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
@@ -58,7 +58,7 @@ public class IslandController {
     }
 
     @PutMapping("/bio")
-    public ApiResponse<IslandResponseDto> updateBio(
+    public ApiResponse<Void> updateBio(
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody BioUpdateRequestDto requestDto){
 
@@ -66,6 +66,27 @@ public class IslandController {
         islandService.updateBio(id, requestDto.getBio());
 
         return ApiResponse.success("자기소개가 성공적으로 수정되었습니다.", null);
+    }
+
+    @PutMapping("/rep-music")
+    public ApiResponse<Void> updateRepMusic(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody RepMusicUpdateRequestDto requestDto){
+
+        Long id=getIdFromToken(authHeader);
+        islandService.updateRepMusic(id, requestDto);
+
+        return ApiResponse.success("대표곡이 성공적으로 수정되었습니다.", null);
+    }
+
+    @DeleteMapping("/rep-music")
+    public ApiResponse<Void> deleteRepMusic(
+            @RequestHeader("Authorization") String authHeader){
+
+        Long id=getIdFromToken(authHeader);
+        islandService.deleteRepMusic(id);
+
+        return ApiResponse.success("대표곡이 성공적으로 삭제되었습니다.", null);
     }
 
 //    @PatchMapping
