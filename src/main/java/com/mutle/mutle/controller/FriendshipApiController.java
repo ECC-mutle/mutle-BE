@@ -30,9 +30,10 @@ public class FriendshipApiController {
     public ApiResponse<FriendSearchResponse> searchFriend(
             @RequestHeader("Authorization") String token,
             @RequestParam String type,
-            @RequestParam String keyword) {
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String userId) {
         Long id = getUserIdFromToken(token);
-        FriendSearchResponse data = friendshipService.searchFriend(id, type, keyword);
+        FriendSearchResponse data = friendshipService.searchFriend(id, type, email, userId);
         return ApiResponse.success("사용자 검색 성공", data);
     }
 

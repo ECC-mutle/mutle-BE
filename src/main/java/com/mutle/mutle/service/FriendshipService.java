@@ -31,17 +31,17 @@ public class FriendshipService {
     private RepMusicRepository repMusicRepository;
 
     // 친구 검색
-    public FriendSearchResponse searchFriend(Long currentUserId, String type, String keyword) {
+    public FriendSearchResponse searchFriend(Long currentUserId, String type, String email, String userId) {
 
         // 조건에 따라 사용자 검색
         User targetUser;
 
         //이메일 검색
         if ("EMAIL".equals(type)) {
-            targetUser = userRepository.findByEmail(keyword)
+            targetUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));        } //id 검색
         else if ("ID".equals(type)) {
-            targetUser = userRepository.findByUserId(keyword)
+            targetUser = userRepository.findByUserId(userId)
                     .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));        } // 검색 결과 없음
         else {
             throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);        }
