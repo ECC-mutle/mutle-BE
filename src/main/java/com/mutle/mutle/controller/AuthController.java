@@ -35,4 +35,14 @@ public class AuthController {
         authService.withdraw(requestDto, token);
         return ApiResponse.success("회원 탈퇴가 성공적으로 완료되었습니다.", null);
     }
+    @GetMapping("/check-user-id")
+    public ApiResponse<Void> checkUserId(@RequestParam String userId){
+        authService.checkUserId(userId);
+        return ApiResponse.success("사용 가능한 아이디입니다.", null);
+    }
+    @GetMapping("/check-email")
+    public ApiResponse<Void> checkEmail(@RequestParam String email){
+        authService.checkEmail(email);
+        return ApiResponse.success("사용 가능한 이메일입니다.", null);
+    }
 }
