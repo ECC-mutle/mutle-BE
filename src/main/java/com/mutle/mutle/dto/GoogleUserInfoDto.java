@@ -1,6 +1,5 @@
 package com.mutle.mutle.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class WithdrawRequestDto {
-    private String password;
+public class GoogleUserInfoDto {
+    private String sub;
+    private String email;
+    private String name;
 }
