@@ -59,7 +59,6 @@ public class JwtUtil {
                 .parseClaimsJws(token).getBody();
     }
 
-    //토큰에서 유저 id 추출
     public Long getId(String token){
         Claims claims=parseToken(token);
         return Long.parseLong(claims.getSubject());
