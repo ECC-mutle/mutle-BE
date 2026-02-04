@@ -8,6 +8,7 @@ import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
 import com.mutle.mutle.jwt.JwtUtil;
+import com.mutle.mutle.jwt.TokenBlacklist;
 import com.mutle.mutle.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,16 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final TokenBlacklist tokenBlacklist;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, TokenBlacklist tokenBlacklist) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
+    //회원가입
     @Transactional
     public SignupResponseDto signup(SignupRequestDto requestDto){
         //아이디 중복 검사
@@ -53,6 +57,8 @@ public class AuthService {
         return new SignupResponseDto(savedUser.getCreatedAt());
     }
 
+
+    //로그인
     @Transactional
     public LoginResponseDto login(LoginRequestDto requestDto){
         //db에서 유저 찾기
@@ -74,4 +80,15 @@ public class AuthService {
                 false
         );
     }
+
+    //로그아웃
+    public void logout(String authHeader){
+        if(authHeader!=null && authHeader.startsWith("Bearer ")){ //토큰 있음
+            String token=authHeader.substring(7);
+            tokenBlacklist.addBlackList(token);
+        }
+
+    }
+
+
 }

@@ -16,10 +16,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TokenBlacklist tokenBlacklist;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklist tokenBlacklist) {
         this.jwtUtil=jwtUtil;
-
+        this.tokenBlacklist=tokenBlacklist;
     }
 
     @Override
@@ -34,6 +35,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token=header.substring(7); //Bearer 제거
+
+            if(tokenBlacklist.isBlackListed(token)){
+                filterChain.doFilter(request,response);
+                return;
+            }
+
             Claims claims= jwtUtil.parseToken(token); //토큰 파싱
 
             Long id=Long.parseLong(claims.getSubject());

@@ -25,4 +25,9 @@ public class AuthController {
 
         return ApiResponse.success("로그인이 성공적으로 완료되었습니다.", data);
     }
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestHeader("Authorization") String token){
+        authService.logout(token);
+        return ApiResponse.success("로그아웃이 성공적으로 완료되었습니다.", null);
+    }
 }
