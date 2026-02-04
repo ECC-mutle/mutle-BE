@@ -24,14 +24,14 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
     @Query("SELECT f FROM FriendShip f WHERE " +
             "(f.requester.id = :id AND f.receiver.id = :targetId) OR " +
             "(f.requester.id = :targetId AND f.receiver.id = :id)")
-    Optional<FriendShip> findRelation(Long id, Long youId);
+    Optional<FriendShip> findRelation(@Param("id") Long id, @Param("targetId") Long targetId);
 
     List<FriendShip> findByReceiverIdAndFriendshipStatus(Long receiverId, FriendshipStatus requestSent);
 
     @Query("SELECT f FROM FriendShip f WHERE " +
-            "(f.requester.id = :userId OR f.receiver.id = :userId) " +
+            "(f.requester.id = :id OR f.receiver.id = :id) " +
             "AND f.friendshipStatus = com.mutle.mutle.entity.FriendshipStatus.ACCEPTED")
-    List<FriendShip> findByAcceptedFriends(@Param("userId") Long id);
+    List<FriendShip> findByAcceptedFriends(@Param("id") Long id);
 
     Integer countByReceiverAndFriendshipStatus(User receiver, FriendshipStatus status);
 }
