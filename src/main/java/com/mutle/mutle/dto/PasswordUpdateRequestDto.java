@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PasswordUpdateRequestDto {
-    @NotBlank(message="AUTH_005")
+    @NotBlank(message="INVALID_PASSWORD")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$", message ="AUTH_005")
     private String currentPassword;
 
-    @NotBlank(message="AUTH_005")
+    @NotBlank(message="INVALID_PASSWORD")
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,16}$", message ="AUTH_005")
     private String newPassword;
 }

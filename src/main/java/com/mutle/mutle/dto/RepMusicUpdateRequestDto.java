@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RepMusicUpdateRequestDto {
-    @NotBlank(message="ISLAND_201")
+    @NotBlank(message="BLANK_TRACK_NAME")
     private String trackName;
-    @NotBlank(message="ISLAND_202")
+    @NotBlank(message="BLANK_ARTIST_NAME")
     private String artistName;
     private String artworkUrl60;
 }

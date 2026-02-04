@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlatformDto {
-    @NotBlank(message = "ISLAND_301")
+    @NotBlank(message = "BLANK_PLATFORM_NAME")
     private PlatformName platformName;
     private String platformNickname;
 }

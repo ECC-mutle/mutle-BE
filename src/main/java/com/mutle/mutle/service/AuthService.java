@@ -234,6 +234,12 @@ public class AuthService {
     public void passwordUpdate(PasswordUpdateRequestDto requestDto, Long id){
         User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        boolean isSocialUser = user.getUserId().startsWith("kakao_") || user.getUserId().startsWith("google_");
+
+        if (isSocialUser) {
+            throw new CustomException(ErrorCode.SOCIAL_USER_CANNOT_CHANGE_PASSWORD);
+        }
+
         //비밀번호 일치 검사
         if(!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())){
             throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
