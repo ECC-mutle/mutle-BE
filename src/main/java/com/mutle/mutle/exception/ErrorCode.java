@@ -13,7 +13,7 @@ public enum ErrorCode {
     BLANK_LOGIN(400, "AUTH_101", "아이디 혹은 비밀번호를 입력하지 않았습니다"),
     USER_NOT_FOUND(404, "AUTH_103", "존재하지 않는 사용자입니다."),
     PASSWORD_MISMATCH(401, "AUTH_102", "비밀번호가 틀렸습니다."),
-    TOKEN_ERROR(401, "AUTH_000", "인증 정보가 유효하지 않습니다."),
+    TOKEN_ERROR(403, "AUTH_000", "인증 정보가 유효하지 않습니다."),
     OLD_PASSWORD(400, "AUTH_501", "이전 비밀번호와 동일합니다."),
     SOCIAL_USER_CANNOT_CHANGE_ID(400,"AUTH_601" , "소셜 회원은 아이디 변경이 불가능 합니다."),
     SOCIAL_USER_CANNOT_CHANGE_EMAIL(400,"AUTH_602" , "소셜 회원은 이메일 변경이 불가능 합니다."),

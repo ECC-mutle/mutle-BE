@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface RepMusicRepository extends JpaRepository<RepMusic, Long> {
     Optional<RepMusic> findByUser(User user);
 
+    void deleteByUser(User user);
 }

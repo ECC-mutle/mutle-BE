@@ -2,6 +2,7 @@ package com.mutle.mutle.repository;
 
 import com.mutle.mutle.entity.FriendShip;
 import com.mutle.mutle.entity.FriendshipStatus;
+import com.mutle.mutle.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,4 +32,6 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
             "(f.requester.id = :userId OR f.receiver.id = :userId) " +
             "AND f.friendshipStatus = com.mutle.mutle.entity.FriendshipStatus.ACCEPTED")
     List<FriendShip> findByAcceptedFriends(@Param("userId") Long id);
+
+    Integer countByReceiverAndFriendshipStatus(User receiver, FriendshipStatus status);
 }

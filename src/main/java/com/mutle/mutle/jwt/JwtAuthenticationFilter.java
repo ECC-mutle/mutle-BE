@@ -1,5 +1,6 @@
 package com.mutle.mutle.jwt;
 
+import com.mutle.mutle.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,8 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String header=request.getHeader("Authorization");
 
-        if(header==null || !header.startsWith("Bearer ")){ //토큰 없음
-            filterChain.doFilter(request,response);
+        if(header==null || !header.startsWith("Bearer ")){
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token=header.substring(7); //Bearer 제거
 
             if(tokenBlacklist.isBlackListed(token)){
-                filterChain.doFilter(request,response);
+                sendErrorResponse(response, ErrorCode.TOKEN_ERROR);
                 return;
             }
 
@@ -49,10 +50,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            filterChain.doFilter(request,response);
+
         }catch (Exception e){
             SecurityContextHolder.clearContext(); //인증 제거
+            sendErrorResponse(response, ErrorCode.TOKEN_ERROR);
         }
 
-        filterChain.doFilter(request,response);
+
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+        response.setStatus(errorCode.getStatus());
+        response.setContentType("application/json;charset=UTF-8");
+        String json = String.format(
+                "{\"status\":%d,\"code\":\"%s\",\"message\":\"%s\"}",
+                errorCode.getStatus(), errorCode.getCode(), errorCode.getMessage()
+        );
+        response.getWriter().write(json);
     }
 }

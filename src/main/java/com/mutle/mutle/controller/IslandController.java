@@ -1,9 +1,6 @@
 package com.mutle.mutle.controller;
 
-import com.mutle.mutle.dto.ApiResponse;
-import com.mutle.mutle.dto.BioUpdateRequestDto;
-import com.mutle.mutle.dto.IslandResponseDto;
-import com.mutle.mutle.dto.IslandUpdateRequestDto;
+import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
 import com.mutle.mutle.exception.ErrorCode;
@@ -58,7 +55,7 @@ public class IslandController {
     }
 
     @PutMapping("/bio")
-    public ApiResponse<IslandResponseDto> updateBio(
+    public ApiResponse<Void> updateBio(
             @RequestHeader("Authorization") String authHeader,
             @Valid @RequestBody BioUpdateRequestDto requestDto){
 
@@ -68,16 +65,36 @@ public class IslandController {
         return ApiResponse.success("자기소개가 성공적으로 수정되었습니다.", null);
     }
 
-//    @PatchMapping
-//    public ApiResponse<Void> updateIsland(
-//            @RequestHeader("Authorization") String authHeader,
-//            @Valid @RequestBody IslandUpdateRequestDto requestDto) {
-//
-//        Long id = getIdFromToken(authHeader);
-//
-//        islandService.updateIsland(id, requestDto);
-//
-//        return ApiResponse.success("섬 정보가 성공적으로 수정되었습니다.", null);
-//    }
+    @PutMapping("/rep-music")
+    public ApiResponse<Void> updateRepMusic(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody RepMusicUpdateRequestDto requestDto){
+
+        Long id=getIdFromToken(authHeader);
+        islandService.updateRepMusic(id, requestDto);
+
+        return ApiResponse.success("대표곡이 성공적으로 수정되었습니다.", null);
+    }
+
+    @DeleteMapping("/rep-music")
+    public ApiResponse<Void> deleteRepMusic(
+            @RequestHeader("Authorization") String authHeader){
+
+        Long id=getIdFromToken(authHeader);
+        islandService.deleteRepMusic(id);
+
+        return ApiResponse.success("대표곡이 성공적으로 삭제되었습니다.", null);
+    }
+
+    @PutMapping("/platforms")
+    public ApiResponse<Void> updatePlatforms(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody PlatformsUpdatedRequestDto requestDto){
+
+        Long id=getIdFromToken(authHeader);
+        islandService.updatePlatforms(id, requestDto);
+
+        return ApiResponse.success("플랫폼 정보가 성공적으로 수정되었습니다.", null);
+    }
 }
 
