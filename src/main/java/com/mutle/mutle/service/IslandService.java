@@ -2,6 +2,7 @@ package com.mutle.mutle.service;
 
 import com.mutle.mutle.dto.*;
 import com.mutle.mutle.entity.Music;
+import com.mutle.mutle.entity.Platform;
 import com.mutle.mutle.entity.RepMusic;
 import com.mutle.mutle.entity.User;
 import com.mutle.mutle.exception.CustomException;
@@ -132,56 +133,23 @@ public class IslandService {
         repMusicRepository.deleteByUser(user);
     }
 
+    //platforms 수정
+    @Transactional
+    public void updatePlatforms(Long id, PlatformsUpdatedRequestDto requestDto) {
+        User user=userRepository.findById(id)
+                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        platformRepository.deleteAllByUser(user);
 
-//    //프로필 수정
-//    @Transactional
-//    public void updateIsland(Long id, IslandUpdateRequestDto requestDto){
-//        User user = userRepository.findById(id)
-//                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-//
-//        //bio
-//        if (requestDto.getBio() != null) {
-//            user.updateBio(requestDto.getBio());
-//        }
-//
-//        //repMusic
-//        if (requestDto.getRepMusic() != null) {
-//            Music music=musicRepository
-//                    .findByTrackNameAndArtistName(requestDto.getRepMusic().getTrackName(), requestDto.getRepMusic().getArtistName())
-//                    .orElseGet(()->
-//                            musicRepository.save(
-//                                    Music.builder()
-//                                            .trackName(requestDto.getRepMusic().getTrackName())
-//                                            .artistName(requestDto.getRepMusic().getArtistName())
-//                                            .artworkUrl60(requestDto.getRepMusic().getArtworkUrl60())
-//                                            .build()
-//                            )
-//                    );
-//
-//            RepMusic repMusic=repMusicRepository.findByUser(user)
-//                    .orElseGet(()->
-//                            RepMusic.builder()
-//                                    .user(user)
-//                                    .build());
-//
-//            repMusic.updateMusic(music);
-//            repMusicRepository.save(repMusic);
-//        }
-//
-//        //platform
-//        if(requestDto.getPlatforms()!=null){
-//            List<Platform> platforms=requestDto.getPlatforms().stream()
-//                    .map(dto -> Platform.builder()
-//                            .user(user)
-//                            .platformName(dto.getPlatformName())
-//                            .platformNickname(dto.getPlatformNickname())
-//                            .build())
-//
-//                    .toList();
-//            platformRepository.saveAll(platforms);
-//        }
-//
-//    }
-
+        if (requestDto.getPlatforms() != null) {
+            List<Platform> platforms = requestDto.getPlatforms().stream()
+                    .map(dto -> Platform.builder()
+                            .user(user)
+                            .platformName(dto.getPlatformName())
+                            .platformNickname(dto.getPlatformNickname())
+                            .build())
+                    .toList();
+            platformRepository.saveAll(platforms);
+        }
+    }
 }

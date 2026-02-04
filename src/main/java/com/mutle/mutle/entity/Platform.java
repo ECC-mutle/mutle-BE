@@ -22,8 +22,9 @@ public class Platform {
     @Column(name = "platform_id")
     private Long platformId;
 
-    @Column(name = "platform_name", nullable = false, length = 50)
-    private String platformName;
+    @Column(name = "platform_name", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PlatformName platformName;
 
     @Column(name = "platform_nickname", length = 50)
     private String platformNickname;
