@@ -2,6 +2,7 @@ package com.mutle.mutle.repository;
 
 import com.mutle.mutle.entity.Bottle;
 import com.mutle.mutle.entity.TodayQuest;
+import com.mutle.mutle.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import java.util.List;
 
 public interface BottleRepository extends JpaRepository<Bottle, Long> {
 
@@ -22,4 +26,12 @@ public interface BottleRepository extends JpaRepository<Bottle, Long> {
     List<Bottle> bottleId(Long bottleId);
 
     boolean existsByBottleIdAndBottleCreatedAtAfter(Long BottleId, LocalDateTime dateTime);
+    @Query("SELECT b FROM Bottle b WHERE b.user = :user " +
+            "AND FUNCTION('YEAR', b.bottleCreatedAt) = :year " +
+            "AND FUNCTION('MONTH', b.bottleCreatedAt) = :month")
+    List<Bottle> findByUserAndYearAndMonth(
+            @Param("user") User user,
+            @Param("year") int year,
+            @Param("month") int month
+    );
 }
