@@ -29,8 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String header=request.getHeader("Authorization");
 
-        if(header==null || !header.startsWith("Bearer ")){ //토큰 없음
-            sendErrorResponse(response, ErrorCode.TOKEN_ERROR);
+        if(header==null || !header.startsWith("Bearer ")){
+            filterChain.doFilter(request, response);
             return;
         }
 
