@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserInfoRequestDto {
-    @Pattern(regexp = "^[a-z0-9._]{4,20}$", message = "AUTH_003")
+    @Pattern(regexp = "^[a-z0-9._]{4,20}$", message = "INVALID_USER_ID")
     private String userId;
-    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "AUTH_004")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "INVALID_NICKNAME")
     private String nickname;
-    @Email(message = "AUTH_006")
+    @Email(message = "INVALID_EMAIL")
     private String email;
     private String profileImage;
 }

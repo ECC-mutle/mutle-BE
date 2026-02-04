@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginRequestDto {
 
-    @NotBlank(message="AUTH_101")
+    @NotBlank(message="DUPLICATE_EMAIL")
     private String userId;
 
-    @NotBlank(message = "AUTH_101")
+    @NotBlank(message = "INVALID_PASSWORD")
     private String password;
 }
