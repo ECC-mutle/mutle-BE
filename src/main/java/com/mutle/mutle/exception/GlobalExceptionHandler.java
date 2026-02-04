@@ -20,8 +20,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e){
-        String errorCode=e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
-        return ResponseEntity.status(400).body(ApiResponse.error(errorCode));
-    }
+    public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException e) {
+        String errorName = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+
+        try {
+            ErrorCode errorCode = ErrorCode.valueOf(errorName);
+
+            return ResponseEntity
+                    .status(errorCode.getStatus())
+                    .body(ApiResponse.error(errorCode.getCode() + ": " + errorCode.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(400).body(ApiResponse.error("VALIDATION_ERROR: " + errorName));
+        }
+}
 }
