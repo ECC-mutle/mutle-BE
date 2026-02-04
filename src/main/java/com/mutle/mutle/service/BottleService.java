@@ -17,8 +17,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 @Slf4j
 @Service
 public class BottleService {
@@ -42,25 +40,25 @@ public class BottleService {
 
         // 유저 조회 및 예외 발생
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));
 
         // 질문 조회 및 예외 발생
         TodayQuest quest = todayQuestRepository.findByQuestionId(questionId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_QUEST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_001));
 
         // 음악 조회 및 예외 발생
         Music music = musicRepository.findByMusicId(musicId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MUSIC_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.MUSIC_001));
 
         // 글자 수 제한 체크
         if (request.getMemo().length() > 200) {
-            throw new CustomException(ErrorCode.CONTENT_TOO_LONG);
+            throw new CustomException(ErrorCode.BOTTLE_002);
         }
 
         // 오늘 이미 보냈는지 체크
         boolean alreadySent = bottleRepository.existsByBottleIdAndBottleCreatedAtAfter(id, LocalDateTime.now().with(LocalTime.MIN));
         if (alreadySent) {
-            throw new CustomException(ErrorCode.ALREADY_SENT_TODAY);
+            throw new CustomException(ErrorCode.BOTTLE_001);
         }
 
         // 유리병 엔티티 생성
@@ -86,7 +84,7 @@ public class BottleService {
     public BottleRandomResponse getBottle(Long id) {
         // 랜덤 유리병 조회
         Bottle randomBottle = bottleRepository.findRandomBottle(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_ARRIVED));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_003));
         // 반환
         return BottleRandomResponse.fromEntity(randomBottle, id);
     }
@@ -96,15 +94,15 @@ public class BottleService {
     public BottleReactionCreateResponse addReaction(Long id, Long bottleId) {
         // 유저 조회 및 예외 발생
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));
 
         // 유리병 조회 및 예외 발생
         Bottle bottle = bottleRepository.findByBottleId(bottleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_004));
 
         // 중복 확인
         if (reactionRepository.existsByReactorAndBottle(user, bottle)) {
-            throw new CustomException(ErrorCode.REACTION_DUPLICATION);
+            throw new CustomException(ErrorCode.REACTION_001);
         }
 
         // 반응 엔티티 생성 및 저장
@@ -132,7 +130,7 @@ public class BottleService {
 
         // 유리병 조회 및 예외 발생
         Bottle bottle = bottleRepository.findByBottleId(bottleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_004));
 
         // 반환
         return BottleReactionGetResponse.builder()
@@ -148,7 +146,7 @@ public class BottleService {
 
         // 질문 조회
         TodayQuest quest = todayQuestRepository.findByDate(today)
-                .orElseThrow(() -> new CustomException(ErrorCode.TODAY_QUEST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_001));
 
         // 반환
         return TodayQuestResponse.fromEntity(quest);
@@ -159,11 +157,11 @@ public class BottleService {
 
         // 유리병 조회 및 예외 발생
         Bottle bottle = bottleRepository.findById(bottleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_004));
 
         // 생성일로부터 7일이 지났는지 확인
         if (bottle.getBottleCreatedAt().toLocalDateTime().isBefore(LocalDateTime.now().minusDays(7))) {
-            throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
+            throw new CustomException(ErrorCode.BOOKMARK_002);
         }
 
         // 반환
@@ -176,15 +174,15 @@ public class BottleService {
 
         // 유리병 조회 및 예외 발생
         Bottle bottle = bottleRepository.findByBottleId(bottleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_004));
 
         // 유저 조회 및 예외 발생
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));
 
         // 중복 확인
         if (bookmarkRepository.existsByUserAndBottle(user, bottle)) {
-            throw new CustomException(ErrorCode.BOOKMARK_DUPLICATION);
+            throw new CustomException(ErrorCode.BOOKMARK_001);
         }
 
         // 저장

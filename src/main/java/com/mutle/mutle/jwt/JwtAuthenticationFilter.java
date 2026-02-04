@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token=header.substring(7); //Bearer 제거
 
             if(tokenBlacklist.isBlackListed(token)){
-                sendErrorResponse(response, ErrorCode.TOKEN_ERROR);
+                sendErrorResponse(response, ErrorCode.AUTH_000);
                 return;
             }
 
@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         }catch (Exception e){
             SecurityContextHolder.clearContext(); //인증 제거
-            sendErrorResponse(response, ErrorCode.TOKEN_ERROR);
+            sendErrorResponse(response, ErrorCode.AUTH_000);
         }
 
 

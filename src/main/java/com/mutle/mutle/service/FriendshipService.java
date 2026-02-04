@@ -39,12 +39,12 @@ public class FriendshipService {
         //이메일 검색
         if ("EMAIL".equals(type)) {
             targetUser = userRepository.findByEmail(keyword)
-                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));        } //id 검색
+                    .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));        } //id 검색
         else if ("ID".equals(type)) {
             targetUser = userRepository.findByUserId(keyword)
-                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));        } // 검색 결과 없음
+                    .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));        } // 검색 결과 없음
         else {
-            throw new CustomException(ErrorCode.INVALID_SEARCH_CONDITION);        }
+            throw new CustomException(ErrorCode.VALIDATION_001);        }
 
         // 관계 판단
         String status = determineFriendshipStatus(currentUserId, targetUser.getId());
@@ -76,9 +76,9 @@ public class FriendshipService {
 
         // 유저 확인
         User me = userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));
         User target = userRepository.findById(targetId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));
 
         // 관계 확인
         Optional<FriendShip> existingRelation = friendShipRepository.findRelation(id, targetId);
@@ -88,12 +88,12 @@ public class FriendshipService {
             FriendshipStatus status = relation.getFriendshipStatus();
 
             if (status == FriendshipStatus.ACCEPTED) {
-                throw new CustomException(ErrorCode.FRIEND_ALREADY_EXISTS);
+                throw new CustomException(ErrorCode.FRIEND_001);
             }
             if (relation.getRequester().getId().equals(id)) {
-                throw new CustomException(ErrorCode.FRIEND_REQUEST_ALREADY_SENT);
+                throw new CustomException(ErrorCode.FRIEND_002);
             } else {
-                throw new CustomException(ErrorCode.FRIEND_REQUEST_ALREADY_RECEIVED);
+                throw new CustomException(ErrorCode.FRIEND_003);
             }
         }
 
@@ -122,16 +122,16 @@ public class FriendshipService {
 
         // 신청 정보 확인
         FriendShip request = friendShipRepository.findById(requestId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REQUEST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.REQUEST_001));
 
         // 본인이 보낸 신청인지 확인
         if (!request.getRequester().getId().equals(id)) {
-            throw new CustomException(ErrorCode.CANNOT_CANCEL_OTHERS_REQUEST);
+            throw new CustomException(ErrorCode.AUTH_701);
         }
 
         // 취소 가능한 상태인지 확인
         if (request.getFriendshipStatus() != FriendshipStatus.valueOf("REQUEST_SENT")) {
-            throw new CustomException(ErrorCode.ALREADY_PROCESSED_REQUEST);
+            throw new CustomException(ErrorCode.FRIEND_004);
         }
 
         // 4. 삭제 처리
@@ -179,15 +179,15 @@ public class FriendshipService {
     @Transactional
     public FriendResponse respondFriendRequest(Long id, Long requestId, FriendRespondRequest body) {
         FriendShip request = friendShipRepository.findById(requestId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REQUEST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.REQUEST_001));
 
         // 내게 온 신청인지 확인
         if (!request.getReceiver().getId().equals(id)) {
-            throw new CustomException(ErrorCode.TOKEN_ERROR);
+            throw new CustomException(ErrorCode.AUTH_000);
         }
 
         if (request.getFriendshipStatus() != FriendshipStatus.REQUEST_SENT) {
-            throw new CustomException(ErrorCode.ALREADY_PROCESSED_REQUEST);
+            throw new CustomException(ErrorCode.FRIEND_004);
         }
 
         // 상태 변경
@@ -239,7 +239,7 @@ public class FriendshipService {
         // 친구 관계 확인
         FriendShip friendship = friendShipRepository.findRelation(id, targetId)
                 .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.ACCEPTED)
-                .orElseThrow(() -> new CustomException(ErrorCode.FRIEND_RELATION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.FRIEND_005));
 
         User target = friendship.getRequester().getId().equals(id) ? friendship.getReceiver() : friendship.getRequester();
 

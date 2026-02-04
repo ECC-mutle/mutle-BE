@@ -20,7 +20,7 @@ public class FriendshipApiController {
 
     private Long getUserIdFromToken(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.TOKEN_ERROR);
+            throw new CustomException(ErrorCode.AUTH_000);
         }
         return jwtUtil.getId(token.substring(7));
     }

@@ -33,7 +33,7 @@ public class IslandService {
     public IslandResponseDto getIsland(Long id, Long currentuserId, Integer year, Integer month) {
 
         User user=userRepository.findById(id)
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         //권한 확인
         boolean isMe = currentuserId.equals(user.getId());
@@ -86,7 +86,7 @@ public class IslandService {
     //bio 수정
     public void updateBio(Long id, String newBio){
         User user=userRepository.findById(id)
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         user.updateBio(newBio);
     }
@@ -95,7 +95,7 @@ public class IslandService {
     @Transactional
     public void updateRepMusic(Long id, RepMusicUpdateRequestDto requestDto) {
         User user=userRepository.findById(id)
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         //repMusic(music)이 db에 있는지 확인, 없으면 생성
         Music music=musicRepository
@@ -128,7 +128,7 @@ public class IslandService {
     @Transactional
     public void deleteRepMusic(Long id) {
         User user=userRepository.findById(id)
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         repMusicRepository.deleteByUser(user);
     }
@@ -137,7 +137,7 @@ public class IslandService {
     @Transactional
     public void updatePlatforms(Long id, PlatformsUpdatedRequestDto requestDto) {
         User user=userRepository.findById(id)
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         platformRepository.deleteAllByUser(user);
 

@@ -22,7 +22,7 @@ public class MenuService {
     public MenuResponseDto getMenu(Long id) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));
 
         //친구 요청 수
         Integer friendRequestCount = friendShipRepository.countByReceiverAndFriendshipStatus(

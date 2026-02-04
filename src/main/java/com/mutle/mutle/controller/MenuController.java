@@ -28,7 +28,7 @@ public class MenuController {
 
     private Long getIdFromToken(String token){
         if (token == null || !token.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.TOKEN_ERROR);
+            throw new CustomException(ErrorCode.AUTH_000);
         }
         Long id=jwtUtil.getId(token.substring(7).trim());
         return id;

@@ -84,11 +84,11 @@ public class AuthService {
     public LoginResponseDto login(LoginRequestDto requestDto){
         //db에서 유저 찾기
         User user=userRepository.findByUserId(requestDto.getUserId())
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         //비밀번호 일치 확인
         if(!passwordEncoder.matches(requestDto.getPassword(),user.getPassword())){
-            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+            throw new CustomException(ErrorCode.AUTH_102);
         }
 
         String accessToken= jwtUtil.generateAccessToken(user.getId());
@@ -117,12 +117,12 @@ public class AuthService {
     public void withdraw(WithdrawRequestDto requestDto, String token, Long id){
 
         //유저 조회
-        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         //비밀번호 일치 확인
         if (!user.getUserId().startsWith("kakao_")) {
             if (requestDto.getPassword() == null || !passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-                throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+                throw new CustomException(ErrorCode.AUTH_102);
             }
         }
 
@@ -160,7 +160,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public void checkUserId(String userId) {
         if (userRepository.existsByUserId(userId)){
-            throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
+            throw new CustomException(ErrorCode.AUTH_002);
         }
     }
 
@@ -168,7 +168,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public void checkEmail(String email) {
         if(userRepository.existsByEmail(email)){
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+            throw new CustomException(ErrorCode.AUTH_001);
         }
     }
 
@@ -176,7 +176,7 @@ public class AuthService {
     @Transactional(readOnly = true)
 
     public UserInfoResponseDto userInfo(Long id) {
-        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         return new UserInfoResponseDto(
                 user.getUserId(),
@@ -190,21 +190,21 @@ public class AuthService {
     //정보 수정
     @Transactional
     public UserInfoResponseDto userInfoFix(UserInfoRequestDto requestDto, Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.AUTH_103));
 
 
         boolean isSocialUser = user.getUserId().startsWith("kakao_") || user.getUserId().startsWith("google_");
 
         //아이디 변경
         if (requestDto.getUserId() != null && !user.getUserId().equals(requestDto.getUserId())) {
-            if (isSocialUser) throw new CustomException(ErrorCode.SOCIAL_USER_CANNOT_CHANGE_ID); // 에러코드 하나 만드세요!
+            if (isSocialUser) throw new CustomException(ErrorCode.AUTH_601); // 에러코드 하나 만드세요!
             checkUserId(requestDto.getUserId());
             user.updateUserId(requestDto.getUserId());
         }
 
         //이메일 변경
         if (requestDto.getEmail() != null && !user.getEmail().equals(requestDto.getEmail())) {
-            if (isSocialUser) throw new CustomException(ErrorCode.SOCIAL_USER_CANNOT_CHANGE_EMAIL);
+            if (isSocialUser) throw new CustomException(ErrorCode.AUTH_602);
             checkEmail(requestDto.getEmail());
             user.updateEmail(requestDto.getEmail());
         }
@@ -232,16 +232,22 @@ public class AuthService {
     //비밀번호 수정
     @Transactional
     public void passwordUpdate(PasswordUpdateRequestDto requestDto, Long id){
-        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+        User user=userRepository.findById(id).orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
+
+        boolean isSocialUser = user.getUserId().startsWith("kakao_") || user.getUserId().startsWith("google_");
+
+        if (isSocialUser) {
+            throw new CustomException(ErrorCode.AUTH_603);
+        }
 
         //비밀번호 일치 검사
         if(!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())){
-            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+            throw new CustomException(ErrorCode.AUTH_102);
         }
 
         //기존 비밀번호와 다른지 검사
         if(passwordEncoder.matches(requestDto.getNewPassword(), user.getPassword())){
-            throw new CustomException(ErrorCode.OLD_PASSWORD);
+            throw new CustomException(ErrorCode.AUTH_501);
         }
 
         String encodedPassword=passwordEncoder.encode(requestDto.getNewPassword());

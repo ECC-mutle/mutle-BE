@@ -28,6 +28,7 @@ public class IslandController {
             @RequestParam(required = false) Integer month,
             @RequestHeader("Authorization") String authHeader
     ) {
+
         Integer targetYear = (year != null)
                 ? year
                 : LocalDate.now().getYear();
@@ -36,8 +37,16 @@ public class IslandController {
                 ? month
                 : LocalDate.now().getMonthValue();
 
+        if (targetYear<2024 || targetYear> 9999){
+            throw new CustomException(ErrorCode.ISLAND_001);
+        }
+
+        if (targetMonth<1 || targetMonth> 12){
+            throw new CustomException(ErrorCode.ISLAND_002);
+        }
+
         User user=userRepository.findByUserId(userId)
-                .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()->new CustomException(ErrorCode.AUTH_103));
 
         Long currentId=getIdFromToken(authHeader);
 
@@ -48,7 +57,7 @@ public class IslandController {
 
     private Long getIdFromToken(String token){
         if (token == null || !token.startsWith("Bearer ")) {
-            throw new CustomException(ErrorCode.TOKEN_ERROR);
+            throw new CustomException(ErrorCode.AUTH_000);
         }
         Long id=jwtUtil.getId(token.substring(7).trim());
         return id;
