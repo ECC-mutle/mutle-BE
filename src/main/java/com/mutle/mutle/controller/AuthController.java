@@ -30,12 +30,12 @@ public class AuthController {
         return ApiResponse.success("로그인이 성공적으로 완료되었습니다.", data);
     }
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(@RequestHeader("Authorization") String authHeader){
+    public ApiResponse<Void> logout(@RequestHeader(value = "Authorization", required = false) String authHeader){
         authService.logout(authHeader);
         return ApiResponse.success("로그아웃이 성공적으로 완료되었습니다.", null);
     }
     @DeleteMapping("/me")
-    public ApiResponse<Void> withdraw(@Valid @RequestBody WithdrawRequestDto requestDto, @RequestHeader("Authorization") String token){
+    public ApiResponse<Void> withdraw(@Valid @RequestBody WithdrawRequestDto requestDto, @RequestHeader(value = "Authorization", required = false) String token){
         Long id = getUserIdFromToken(token);
         authService.withdraw(requestDto, token, id);
         return ApiResponse.success("회원 탈퇴가 성공적으로 완료되었습니다.", null);
@@ -51,17 +51,17 @@ public class AuthController {
         return ApiResponse.success("사용 가능한 이메일입니다.", null);
     }
     @GetMapping("/me")
-    public ApiResponse<UserInfoResponseDto> userInfo(@RequestHeader("Authorization") String token){
+    public ApiResponse<UserInfoResponseDto> userInfo(@RequestHeader(value = "Authorization", required = false) String token){
         Long id = getUserIdFromToken(token);
         UserInfoResponseDto data=authService.userInfo(id);
         return ApiResponse.success("정보를 성공적으로 조회했습니다.", data);
     }
-    @PatchMapping("/me") public ApiResponse<UserInfoResponseDto> userInfoFix(@Valid @RequestBody UserInfoRequestDto requestDto, @RequestHeader("Authorization") String token){
+    @PatchMapping("/me") public ApiResponse<UserInfoResponseDto> userInfoFix(@Valid @RequestBody UserInfoRequestDto requestDto, @RequestHeader(value = "Authorization", required = false) String token){
         Long id = getUserIdFromToken(token);
         UserInfoResponseDto data=authService.userInfoFix(requestDto, id);
         return ApiResponse.success("정보를 성공적으로 수정했습니다.", data);
     }
-    @PutMapping("/me/password") public ApiResponse<Void> passwordUpdate(@Valid @RequestBody PasswordUpdateRequestDto requestDto, @RequestHeader("Authorization") String token){
+    @PutMapping("/me/password") public ApiResponse<Void> passwordUpdate(@Valid @RequestBody PasswordUpdateRequestDto requestDto, @RequestHeader(value = "Authorization", required = false) String token){
         Long id = getUserIdFromToken(token);
         authService.passwordUpdate(requestDto, id);
         return  ApiResponse.success("비밀번호가 성공적으로 변경되었습니다.", null);

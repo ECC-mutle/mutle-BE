@@ -56,7 +56,7 @@ public class IslandController {
 
     @PutMapping("/bio")
     public ApiResponse<Void> updateBio(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @Valid @RequestBody BioUpdateRequestDto requestDto){
 
         Long id=getIdFromToken(authHeader);
@@ -67,7 +67,7 @@ public class IslandController {
 
     @PutMapping("/rep-music")
     public ApiResponse<Void> updateRepMusic(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @Valid @RequestBody RepMusicUpdateRequestDto requestDto){
 
         Long id=getIdFromToken(authHeader);
@@ -78,7 +78,7 @@ public class IslandController {
 
     @DeleteMapping("/rep-music")
     public ApiResponse<Void> deleteRepMusic(
-            @RequestHeader("Authorization") String authHeader){
+            @RequestHeader(value = "Authorization", required = false) String authHeader){
 
         Long id=getIdFromToken(authHeader);
         islandService.deleteRepMusic(id);
@@ -88,7 +88,7 @@ public class IslandController {
 
     @PutMapping("/platforms")
     public ApiResponse<Void> updatePlatforms(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
             @Valid @RequestBody PlatformsUpdatedRequestDto requestDto){
 
         Long id=getIdFromToken(authHeader);
