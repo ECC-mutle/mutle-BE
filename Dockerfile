@@ -1,4 +1,4 @@
-FROM gradle:8.5-jdk21 AS build
+FROM openjdk:21-jdk-slim AS build
 WORKDIR /app
 COPY . .
 RUN chmod +x ./gradlew
