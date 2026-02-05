@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BioUpdateRequestDto {
-    @Size(max = 50, message = "ISLAND_101")
+    @Size(max = 50, message = "INVALID_BIO_FORMAT")
     private String bio;
 }
