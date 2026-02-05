@@ -1,8 +1,7 @@
 package com.mutle.mutle.dto;
 
-import com.mutle.mutle.entity.Platform;
 import com.mutle.mutle.entity.PlatformName;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlatformDto {
-    @NotBlank(message = "BLANK_PLATFORM_NAME")
+    @NotNull(message = "BLANK_PLATFORM_NAME")
     private PlatformName platformName;
     private String platformNickname;
 }
