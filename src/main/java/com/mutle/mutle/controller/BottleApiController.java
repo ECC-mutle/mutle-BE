@@ -28,7 +28,7 @@ public class BottleApiController {
     // 유리병 보내기
     @PostMapping
     public ApiResponse<BottleCreateResponse> createBottle(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader(value = "Authorization", required = false) String token,
             @RequestBody BottleCreateRequest request) {
         Long id = getUserIdFromToken(token);
         BottleCreateResponse data = bottleService.createBottle(id, request.getQuestionId(), request.getMusicInfo().getMusicId(), request);
@@ -37,7 +37,7 @@ public class BottleApiController {
 
     // 유리병 받기
     @GetMapping("/random")
-    public ApiResponse<BottleRandomResponse> getRandomBottle(@RequestHeader("Authorization") String token) {
+    public ApiResponse<BottleRandomResponse> getRandomBottle(@RequestHeader(value = "Authorization", required = false) String token) {
         Long id = getUserIdFromToken(token);
         BottleRandomResponse data = bottleService.getBottle(id);
         return ApiResponse.success("유리병 획득 성공", data);
@@ -53,7 +53,7 @@ public class BottleApiController {
     // 유리병 상세페이지 조회
     @GetMapping("/{bottleId}")
     public ApiResponse<BottleDetailResponse> getBottleDetail(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader(value = "Authorization", required = false) String token,
             @PathVariable Long bottleId) {
         Long id = getUserIdFromToken(token);
         BottleDetailResponse data = bottleService.getBottleDetail(bottleId, id);
@@ -63,7 +63,7 @@ public class BottleApiController {
     // 반응 남기기
     @PostMapping("/{bottleId}/reaction")
     public ApiResponse<BottleReactionCreateResponse> addReaction(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader(value = "Authorization", required = false) String token,
             @PathVariable Long bottleId) {
         Long id = getUserIdFromToken(token);
         BottleReactionCreateResponse data = bottleService.addReaction(id, bottleId);
@@ -80,7 +80,7 @@ public class BottleApiController {
     // 북마크 추가
     @PostMapping("/{bottleId}/bookmark")
     public ApiResponse<BookmarkCreateResponse> addBookmark(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader(value = "Authorization", required = false) String token,
             @PathVariable Long bottleId) {
         Long id = getUserIdFromToken(token);
         BookmarkCreateResponse data = bottleService.addBookmark(bottleId, id);
@@ -89,7 +89,7 @@ public class BottleApiController {
 
     // 북마크 목록 조회
     @GetMapping("/bookmarks")
-    public ApiResponse<List<BookmarkListResponse>> getBookmarks(@RequestHeader("Authorization") String token) {
+    public ApiResponse<List<BookmarkListResponse>> getBookmarks(@RequestHeader(value = "Authorization", required = false) String token) {
         Long id = getUserIdFromToken(token);
         List<BookmarkListResponse> data = bottleService.getBookmarks(id);
         return ApiResponse.success("북마크 목록 조회 성공", data);
