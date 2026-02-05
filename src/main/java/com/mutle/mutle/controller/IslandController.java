@@ -26,7 +26,7 @@ public class IslandController {
             @PathVariable String userId,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month,
-            @RequestHeader("Authorization") String authHeader
+            @RequestHeader(value="Authorization", required = false) String authHeader
     ) {
         Integer targetYear = (year != null)
                 ? year
@@ -50,7 +50,7 @@ public class IslandController {
         if (token == null || !token.startsWith("Bearer ")) {
             throw new CustomException(ErrorCode.TOKEN_ERROR);
         }
-        Long id=jwtUtil.getId(token.substring(7).trim());
+        Long id=jwtUtil.getId(token.substring(7));
         return id;
     }
 
