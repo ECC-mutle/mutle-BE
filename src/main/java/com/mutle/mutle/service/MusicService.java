@@ -6,7 +6,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -36,8 +38,15 @@ public class MusicService {
             String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8);
 
             // iTunes Search API URL
-            String url = "https://itunes.apple.com/search?term=" + encodedKeyword +
-                    "&entity=song&country=kr&limit=20";
+            URI url = UriComponentsBuilder
+                    .fromHttpUrl("https://itunes.apple.com/search")
+                    .queryParam("term", keyword)
+                    .queryParam("entity", "song")
+                    .queryParam("country", "kr")
+                    .queryParam("limit", 20)
+                    .build()
+                    .encode(StandardCharsets.UTF_8)
+                    .toUri();
 
             // API 호출
             ItunesResponse response = restTemplate.getForObject(url, ItunesResponse.class);
