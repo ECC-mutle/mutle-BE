@@ -20,18 +20,21 @@ public interface BottleRepository extends JpaRepository<Bottle, Long> {
     Optional<Bottle> findByBottleId(Long bottleId);
 
     //랜덤 유리병 조회
-    @Query(value = "SELECT * FROM bottles b WHERE b.id != :id ORDER BY RAND() LIMIT 1", nativeQuery = true)
+    @Query(
+            value = "SELECT * FROM bottles b WHERE b.id != :id ORDER BY RANDOM() LIMIT 1",
+            nativeQuery = true
+    )
     Optional<Bottle> findRandomBottle(@Param("id") Long id);
 
     List<Bottle> bottleId(Long bottleId);
 
     boolean existsByBottleIdAndBottleCreatedAtAfter(Long BottleId, LocalDateTime dateTime);
     @Query("SELECT b FROM Bottle b WHERE b.user = :user " +
-            "AND FUNCTION('YEAR', b.bottleCreatedAt) = :year " +
-            "AND FUNCTION('MONTH', b.bottleCreatedAt) = :month")
+            "AND b.bottleCreatedAt >= :start " +
+            "AND b.bottleCreatedAt < :end")
     List<Bottle> findByUserAndYearAndMonth(
             @Param("user") User user,
-            @Param("year") int year,
-            @Param("month") int month
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
     );
 }

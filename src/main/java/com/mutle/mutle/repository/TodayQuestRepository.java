@@ -12,6 +12,9 @@ public interface TodayQuestRepository extends JpaRepository<TodayQuest, Long> {
 
     Optional<TodayQuest> findByQuestionId(Long questionId);
 
-    @Query("select t from TodayQuest t where function('DATE', t.date) = function('DATE', :today)")
-    Optional<TodayQuest> findByDate(@Param("today") Date today);
+    @Query("select t from TodayQuest t " +
+            "where t.date >= :start " +
+            "and t.date < :end")
+    Optional<TodayQuest> findByDate(@Param("start") Date start,
+                                    @Param("end") Date end);
 }
