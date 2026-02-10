@@ -65,6 +65,7 @@ public class SecurityConfig {
         CorsConfiguration configuration=new CorsConfiguration();
 
         configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedHeader("*"); //모든 헤더 허용
         configuration.addAllowedMethod("*"); //모든 http 메서드 허용
         configuration.setAllowCredentials(true); //jwt
