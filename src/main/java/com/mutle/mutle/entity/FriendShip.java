@@ -35,6 +35,7 @@ public class FriendShip {
     private User receiver;
 
     @Column(name = "friendship_status", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
     private FriendshipStatus friendshipStatus;
 
     @Column(name = "requested_at", nullable = false, updatable = false)

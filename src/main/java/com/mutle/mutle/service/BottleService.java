@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -144,10 +146,17 @@ public class BottleService {
     // 오늘의 질문 조회
     public TodayQuestResponse getTodayQuest() {
         // 오늘 날짜 구하기
-        Date today = new Date();
+        LocalDate today = LocalDate.now();
+
+        Date start = Date.from(
+                today.atStartOfDay(ZoneId.systemDefault()).toInstant()
+        );
+        Date end = Date.from(
+                today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
+        );
 
         // 질문 조회
-        TodayQuest quest = todayQuestRepository.findByDate(today)
+        TodayQuest quest = todayQuestRepository.findByDate(start, end)
                 .orElseThrow(() -> new CustomException(ErrorCode.TODAY_QUEST_NOT_FOUND));
 
         // 반환
