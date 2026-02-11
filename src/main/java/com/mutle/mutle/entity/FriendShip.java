@@ -37,7 +37,6 @@ public class FriendShip {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "friendship_status", nullable = false, length = 20)
-    @Enumerated(EnumType.STRING)
     private FriendshipStatus friendshipStatus;
 
     @CreationTimestamp
