@@ -47,7 +47,12 @@ public enum ErrorCode {
     INVALID_BIO_FORMAT(400, "ISLAND_101","자기소개는 50자 이내로 작성해주세요." ),
     BLANK_MUSIC_NAME(400, "ISLAND_201", "곡 명을 입력하지 않았습니다."),
     BLANK_ARTIST_NAME(400, "ISLAND_202", "아티스트 명을 입력하지 않았습니다."),
-    BLANK_PLATFORM_NAME(400, "ISLAND_301", "플랫폼 명을 입력하지 않았습니다.");
+    BLANK_PLATFORM_NAME(400, "ISLAND_301", "플랫폼 명을 입력하지 않았습니다."),
+
+    EMPTY_FILE(400, "IMAGE_001", "업로드할 파일이 없습니다."),
+    FILE_CONVERT_ERROR(400, "IMAGE_002", "파일 변환 중 오류가 발생했습니다."),
+    IMAGE_UPLOAD_FAILED(500, "IMAGE_003", "이미지 서버 업로드에 실패했습니다."),
+    FILE_SIZE_EXCEEDED(400, "IMAGE_004", "파일 용량은 20MB를 초과할 수 없습니다.");
 
     private final int status;
     private final String code;
