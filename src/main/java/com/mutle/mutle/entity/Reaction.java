@@ -2,6 +2,7 @@ package com.mutle.mutle.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -33,10 +34,11 @@ public class Reaction {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User reactor;
 
+    @CreationTimestamp
     @Column(name = "reaction_created_at", nullable = false, updatable = false)
-    private Timestamp reactionCreatedAt = Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp reactionCreatedAt;
 
     @UpdateTimestamp
     @Column(name = "reaction_updated_at", nullable = false)
-    private Timestamp reactionUpdatedAt = Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp reactionUpdatedAt;
 }
