@@ -20,6 +20,11 @@ spring:
     init:
       platform: postgres
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
 jwt:
   access-token-expiration: 3600000
   refresh-token-expiration: 1209600000
@@ -39,3 +44,9 @@ google:
   client-id: ${GOOGLE_CLIENT_ID}
   client-secret: ${GOOGLE_CLIENT_SECRET}
   redirect-url: ${GOOGLE_REDIRECT_URL}
+
+supabase:
+  url: ${SUPABASE_URL}
+  key: ${SUPABASE_KEY}
+  bucket:
+    mutle: ${SUPABASE_BUCKET_MUTLE}
