@@ -2,6 +2,7 @@ package com.mutle.mutle.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -34,16 +35,18 @@ public class FriendShip {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User receiver;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "friendship_status", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private FriendshipStatus friendshipStatus;
 
+    @CreationTimestamp
     @Column(name = "requested_at", nullable = false, updatable = false)
-    private Timestamp requestedAt = Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp requestedAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private Timestamp updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp updatedAt;
 
     @Column(name = "unfriended_at")
     private Timestamp unfriendedAt = Timestamp.valueOf(LocalDateTime.now());
