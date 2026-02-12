@@ -48,6 +48,7 @@ public enum ErrorCode {
     BLANK_MUSIC_NAME(400, "ISLAND_201", "곡 명을 입력하지 않았습니다."),
     BLANK_ARTIST_NAME(400, "ISLAND_202", "아티스트 명을 입력하지 않았습니다."),
     BLANK_PLATFORM_NAME(400, "ISLAND_301", "플랫폼 명을 입력하지 않았습니다."),
+    INVALID_PLATFORM_NAME(400, "ISLAND_302", "올바르지 않은 플랫폼 명입니다."),
 
     EMPTY_FILE(400, "IMAGE_001", "업로드할 파일이 없습니다."),
     FILE_CONVERT_ERROR(400, "IMAGE_002", "파일 변환 중 오류가 발생했습니다."),
