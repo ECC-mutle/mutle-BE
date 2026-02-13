@@ -84,6 +84,7 @@ public class IslandService {
     }
 
     //bio 수정
+    @Transactional
     public void updateBio(Long id, String newBio){
         User user=userRepository.findById(id)
                 .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
