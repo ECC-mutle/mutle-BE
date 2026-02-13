@@ -2,6 +2,7 @@ package com.mutle.mutle.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -33,13 +34,25 @@ public class Bookmark {
     @JoinColumn(name = "bottle_id", nullable = false)
     private Bottle bottle;
 
+    @CreationTimestamp
     @Column(name = "bookmark_created_at", nullable = false, updatable = false)
-    private Timestamp bookmarkCreatedAt = Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp bookmarkCreatedAt;
 
     @Column(name = "bookmark_expires_at", nullable = false)
-    private Timestamp bookmarkExpiresAt = Timestamp.valueOf(LocalDateTime.now().plusDays(7));
+    private Timestamp bookmarkExpiresAt;
 
     @UpdateTimestamp
     @Column(name = "bookmark_updated_at", nullable = false)
-    private Timestamp bookmarkUpdatedAt= Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp bookmarkUpdatedAt;
+
+    @PrePersist
+    public void calculateExpiryDate(){
+        Timestamp now=Timestamp.valueOf(LocalDateTime.now());
+        if (this.bookmarkCreatedAt==null){
+            this.bookmarkCreatedAt = now;
+        }
+        if(this.bookmarkExpiresAt == null){
+            this.bookmarkExpiresAt=Timestamp.valueOf(LocalDateTime.now().plusDays(7));
+        }
+    }
 }
