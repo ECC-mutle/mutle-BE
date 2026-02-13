@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -54,8 +56,10 @@ public class IslandService {
 
         //calender
         List<CalendarDto> calendarDtos;
+        LocalDateTime start = LocalDate.of(year, month, 1).atStartOfDay();
+        LocalDateTime end = start.plusMonths(1);
         if (isMe || isFriend) {
-            calendarDtos=bottleRepository.findByUserAndYearAndMonth(user, year, month).
+            calendarDtos=bottleRepository.findByUserAndYearAndMonth(user, start, end).
                     stream()
                     .map(b->new CalendarDto(
                             b.getBottleId(), b.getMusic().getArtworkUrl60(), formatToDate(b.getBottleCreatedAt()) ))

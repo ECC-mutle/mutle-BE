@@ -2,6 +2,7 @@ package com.mutle.mutle.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -57,12 +58,13 @@ public class Bottle {
     @Column(name = "total_count", nullable = false)
     private int totalCount;
 
+    @CreationTimestamp
     @Column(name = "bottle_created_at", nullable = false, updatable = false)
-    private Timestamp bottleCreatedAt = Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp bottleCreatedAt;
 
     @UpdateTimestamp
     @Column(name = "bottle_updated_at", nullable = false)
-    private Timestamp bottleUpdatedAt = Timestamp.valueOf(LocalDateTime.now());
+    private Timestamp bottleUpdatedAt;
 
 }
 

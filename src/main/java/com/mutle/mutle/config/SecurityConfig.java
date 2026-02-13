@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/music/**").permitAll()
                         .requestMatchers("/api/island/**").permitAll()
+                        .requestMatchers("/api/image/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -65,6 +66,8 @@ public class SecurityConfig {
         CorsConfiguration configuration=new CorsConfiguration();
 
         configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("http://localhost:3001");
         configuration.addAllowedHeader("*"); //모든 헤더 허용
         configuration.addAllowedMethod("*"); //모든 http 메서드 허용
         configuration.setAllowCredentials(true); //jwt
