@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/island/**").permitAll()
                         .requestMatchers("/api/image/**").permitAll()
                         .requestMatchers("/api/friends/**").permitAll()
+                        .requestMatchers("/api/bottles/**").permitAll()
+                        .requestMatchers("/api/menu/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
