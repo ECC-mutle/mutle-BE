@@ -236,7 +236,8 @@ public class BottleService {
                     .questionText(b.getBottle().getTodayQuest().getQuestionText())
                     .musicInfo(new BookmarkListResponse.MusicInfo(
                             b.getBottle().getTrackName(),
-                            b.getBottle().getArtistName()
+                            b.getBottle().getArtistName(),
+                            b.getBottle().getArtworkUrl60()
                     ))
                     .bookmarkExpiresAt(bookmarkExpiresAt)
                     .bookmarkCreatedAt(b.getBookmarkCreatedAt())
