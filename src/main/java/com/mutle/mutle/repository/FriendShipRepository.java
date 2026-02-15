@@ -14,7 +14,7 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
 
     @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END " +
             "FROM FriendShip f " +
-            "WHERE f.friendshipStatus = :status " +
+            "WHERE f.friendshipStatus =  com.mutle.mutle.entity.FriendshipStatus.ACCEPTED " +
             "AND ((f.requester.id = :id1 AND f.receiver.id = :id2) " +
             "OR (f.requester.id = :id2 AND f.receiver.id = :id1))")
     boolean existsAcceptedFriendship(
