@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Builder
 public class FriendResponse {
     private Long friendRequestId;
-    private Long id;
+    private String userId;
     private String nickname;
     private String friendshipStatus;
     private Timestamp updatedAt;

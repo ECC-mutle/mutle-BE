@@ -54,7 +54,7 @@ public class FriendshipService {
 
         // 반환
         return FriendSearchResponse.builder()
-                .id(targetUser.getId())
+                .userId(targetUser.getUserId())
                 .nickname(targetUser.getNickname())
                 .profileImage(targetUser.getProfileImage())
                 .bio(targetUser.getBio())
@@ -72,16 +72,16 @@ public class FriendshipService {
 
     // 친구 신청 보내기
     @Transactional
-    public FriendRequestResponse sendFriendRequest(Long id, Long targetId)    {
+    public FriendRequestResponse sendFriendRequest(Long id, String targetId)    {
 
         // 유저 확인
         User me = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        User target = userRepository.findById(targetId)
+        User target = userRepository.findByUserId(targetId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 관계 확인
-        Optional<FriendShip> existingRelation = friendShipRepository.findRelation(id, targetId);
+        Optional<FriendShip> existingRelation = friendShipRepository.findRelation(id, target.getId());
 
         if (existingRelation.isPresent()) {
             FriendShip relation = existingRelation.get();
@@ -140,7 +140,7 @@ public class FriendshipService {
 
         return FriendRequestCancelResponse.builder()
                 .friendRequestId(requestId)
-                .targetId(target.getId())
+                .targetId(target.getUserId())
                 .targetNickname(target.getNickname())
                 .friendshipStatus("NONE")
                 .cancelledAt(Timestamp.valueOf(LocalDateTime.now()))
@@ -160,7 +160,7 @@ public class FriendshipService {
 
             return ReceivedRequestResponse.builder()
                     .friendRequestId(request.getFriendRequestId())
-                    .id(sender.getId())
+                    .userId(sender.getUserId())
                     .nickname(sender.getNickname())
                     .profileImage(sender.getProfileImage())
                     .bio(sender.getBio())
@@ -200,7 +200,7 @@ public class FriendshipService {
 
         return FriendResponse.builder()
                 .friendRequestId(request.getFriendRequestId())
-                .id(request.getRequester().getId())
+                .userId(request.getRequester().getUserId())
                 .nickname(request.getRequester().getNickname())
                 .friendshipStatus("ACCEPTED")
                 .updatedAt(Timestamp.valueOf(LocalDateTime.now()))
@@ -218,7 +218,7 @@ public class FriendshipService {
             Optional<RepMusic> repMusicOpt = repMusicRepository.findByUser(target);
 
             return FriendListResponse.builder()
-                    .id(target.getId())
+                    .userId(target.getUserId())
                     .nickname(target.getNickname())
                     .profileImage(target.getProfileImage())
                     .bio(target.getBio())
@@ -235,9 +235,12 @@ public class FriendshipService {
 
     // 친구 삭제
     @Transactional
-    public FriendDeleteResponse deleteFriend(Long id, Long targetId) {
+    public FriendDeleteResponse deleteFriend(Long id, String targetId) {
+        User searchedUser = userRepository.findByUserId(targetId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         // 친구 관계 확인
-        FriendShip friendship = friendShipRepository.findRelation(id, targetId)
+        FriendShip friendship = friendShipRepository.findRelation(id, searchedUser.getId())
                 .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.ACCEPTED)
                 .orElseThrow(() -> new CustomException(ErrorCode.FRIEND_RELATION_NOT_FOUND));
 
@@ -247,7 +250,7 @@ public class FriendshipService {
         friendShipRepository.delete(friendship);
 
         return FriendDeleteResponse.builder()
-                .targetId(target.getId())
+                .targetId(target.getUserId())
                 .targetNickname(target.getNickname())
                 .unfriendedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .build();

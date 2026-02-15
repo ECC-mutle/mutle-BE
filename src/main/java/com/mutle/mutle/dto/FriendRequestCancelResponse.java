@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @Builder
 public class FriendRequestCancelResponse {
     private Long friendRequestId;
-    private Long targetId;
+    private String targetId;
     private String targetNickname;
     private String friendshipStatus;
     private Timestamp cancelledAt;
