@@ -40,6 +40,7 @@ public class BottleDetailResponse {
     @NoArgsConstructor
     public static class SenderInfo {
         private Long senderId;
+        private String senderUserId;
         private String senderNickname;
     }
 
@@ -61,6 +62,7 @@ public class BottleDetailResponse {
                         .build())
                 .sender(SenderInfo.builder()
                         .senderId(bottle.getUser().getId())
+                        .senderUserId(bottle.getUser().getUserId())
                         .senderNickname(bottle.getUser().getNickname())
                         .build())
                 .build();
