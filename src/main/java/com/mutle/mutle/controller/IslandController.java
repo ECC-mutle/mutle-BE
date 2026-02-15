@@ -21,9 +21,9 @@ public class IslandController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{id}")
     public ApiResponse<IslandResponseDto> getIsland(
-            @PathVariable String userId,
+            @PathVariable Long id,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month,
             @RequestHeader(value="Authorization", required = false) String authHeader
@@ -36,13 +36,13 @@ public class IslandController {
                 ? month
                 : LocalDate.now().getMonthValue();
 
-        User user=userRepository.findByUserId(userId)
+        User user=userRepository.findById(id)
                 .orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Long currentId=getIdFromToken(authHeader);
 
 
-        IslandResponseDto data=islandService.getIsland(user.getId(), currentId, targetYear, targetMonth);
+        IslandResponseDto data=islandService.getIsland(id, currentId, targetYear, targetMonth);
         return ApiResponse.success("섬 정보가 성공적으로 조회되었습니다.",data);
     }
 
