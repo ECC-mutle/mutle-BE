@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FriendSearchResponse {
-    private Long id;
+    private String userId;
     private String nickname;
     private String profileImage;
     private String bio;

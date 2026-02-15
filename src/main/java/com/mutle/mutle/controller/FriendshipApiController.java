@@ -90,7 +90,7 @@ public class FriendshipApiController {
     @DeleteMapping("/{targetId}")
     public ApiResponse<FriendDeleteResponse> deleteFriend(
             @RequestHeader("Authorization") String token,
-            @PathVariable Long targetId) {
+            @PathVariable String targetId) {
         Long id = getUserIdFromToken(token);
         FriendDeleteResponse data = friendshipService.deleteFriend(id, targetId);
         return ApiResponse.success("친구 삭제 완료", data);

@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FriendRequest {
-    private Long targetId;
+    private String targetId;
 }

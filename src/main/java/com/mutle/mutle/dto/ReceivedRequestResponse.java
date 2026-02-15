@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 public class ReceivedRequestResponse {
 
     private Long friendRequestId;
-    private Long id;
+    private String userId;
     private String nickname;
     private String profileImage;
     private String bio;

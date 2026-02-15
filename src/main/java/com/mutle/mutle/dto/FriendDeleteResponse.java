@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Getter
 @Builder
 public class FriendDeleteResponse {
-    private Long targetId;
+    private String targetId;
     private String targetNickname;
     private Timestamp unfriendedAt;
 }
