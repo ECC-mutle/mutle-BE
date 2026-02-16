@@ -28,8 +28,9 @@ public interface BottleRepository extends JpaRepository<Bottle, Long> {
 
     List<Bottle> bottleId(Long bottleId);
 
-    boolean existsByBottleIdAndBottleCreatedAtAfter(Long BottleId, LocalDateTime dateTime);
-    @Query("SELECT b FROM Bottle b WHERE b.user = :user " +
+    boolean existsByUserAndBottleCreatedAtAfter(User user, LocalDateTime dateTime);
+
+    @Query("SELECT b FROM Bottle b JOIN FETCH b.music WHERE b.user = :user " +
             "AND b.bottleCreatedAt >= :start " +
             "AND b.bottleCreatedAt < :end")
     List<Bottle> findByUserAndYearAndMonth(
