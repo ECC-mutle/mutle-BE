@@ -40,7 +40,7 @@ public class BottleService {
 
     // 유리병 보내기
     @Transactional
-    public BottleCreateResponse createBottle(Long id, Long questionId, Long musicId, BottleCreateRequest request) {
+    public BottleCreateResponse createBottle(Long id, Long questionId, BottleCreateRequest request) {
 
         // 유저 조회 및 예외 발생
         User user = userRepository.findById(id)
@@ -51,8 +51,19 @@ public class BottleService {
                 .orElseThrow(() -> new CustomException(ErrorCode.TODAY_QUEST_NOT_FOUND));
 
         // 음악 조회 및 예외 발생
-        Music music = musicRepository.findByMusicId(musicId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MUSIC_NOT_FOUND));
+        //Music music = musicRepository.findByMusicId(musicId)
+        //        .orElseThrow(() -> new CustomException(ErrorCode.MUSIC_NOT_FOUND));
+
+        Music music = musicRepository.findByTrackNameAndArtistName(
+                        request.getMusicInfo().getTrackName(),
+                        request.getMusicInfo().getArtistName())
+                .orElseGet(() -> musicRepository.save(
+                        Music.builder()
+                                .trackName(request.getMusicInfo().getTrackName())
+                                .artistName(request.getMusicInfo().getArtistName())
+                                .artworkUrl60(request.getMusicInfo().getArtworkUrl60())
+                                .build()
+                ));
 
         // 글자 수 제한 체크
         if (request.getMemo().length() > 200) {

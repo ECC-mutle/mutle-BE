@@ -31,7 +31,7 @@ public class BottleApiController {
             @RequestHeader(value = "Authorization", required = false) String token,
             @RequestBody BottleCreateRequest request) {
         Long id = getUserIdFromToken(token);
-        BottleCreateResponse data = bottleService.createBottle(id, request.getQuestionId(), request.getMusicInfo().getMusicId(), request);
+        BottleCreateResponse data = bottleService.createBottle(id, request.getQuestionId(), request);
         return ApiResponse.success("유리병을 성공적으로 보냈습니다.", data);
     }
 
