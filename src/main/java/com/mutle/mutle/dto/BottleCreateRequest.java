@@ -17,7 +17,6 @@ public class BottleCreateRequest {
     @Getter
     @NoArgsConstructor
     public static class MusicInfo {
-        private Long musicId;
         private String trackName;
         private String artistName;
         private String artworkUrl60;

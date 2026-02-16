@@ -38,17 +38,6 @@ public class Bottle {
     @JoinColumn(name = "music_id", nullable = false)
     private Music music;
 
-    // music_info 객체 속 내용 (music 엔티티와 중복)
-    @Column(name = "track_name", nullable = false)
-    private String trackName;
-
-    @Column(name = "artist_name", nullable = false)
-    private String artistName;
-
-    @Column(name = "artwork_url_60")
-    private String artworkUrl60;
-
-
     @Column(name = "memo", length = 200)
     private String memo;
 

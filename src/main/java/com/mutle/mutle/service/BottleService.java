@@ -50,30 +50,30 @@ public class BottleService {
         TodayQuest quest = todayQuestRepository.findByQuestionId(questionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TODAY_QUEST_NOT_FOUND));
 
-        // 음악 조회 및 예외 발생
-        //Music music = musicRepository.findByMusicId(musicId)
-        //        .orElseThrow(() -> new CustomException(ErrorCode.MUSIC_NOT_FOUND));
+        //이미 보냈는지 확인
+        LocalDateTime todayStart = LocalDateTime.now().with(LocalTime.MIN);
+        boolean alreadySent = bottleRepository.existsByUserAndBottleCreatedAtAfter(user, todayStart);
 
-        Music music = musicRepository.findByTrackNameAndArtistName(
-                        request.getMusicInfo().getTrackName(),
-                        request.getMusicInfo().getArtistName())
-                .orElseGet(() -> musicRepository.save(
-                        Music.builder()
-                                .trackName(request.getMusicInfo().getTrackName())
-                                .artistName(request.getMusicInfo().getArtistName())
-                                .artworkUrl60(request.getMusicInfo().getArtworkUrl60())
-                                .build()
-                ));
+        if (alreadySent) {
+            throw new CustomException(ErrorCode.ALREADY_SENT_TODAY);
+        }
+
+        //music이 db에 있는지 확인, 없으면 생성
+        Music music=musicRepository
+                .findByTrackNameAndArtistName(request.getMusicInfo().getTrackName(), request.getMusicInfo().getArtistName())
+                .orElseGet(()->
+                        musicRepository.save(
+                                Music.builder()
+                                        .trackName(request.getMusicInfo().getTrackName())
+                                        .artistName(request.getMusicInfo().getArtistName())
+                                        .artworkUrl60(request.getMusicInfo().getArtworkUrl60())
+                                        .build()
+                        )
+                );
 
         // 글자 수 제한 체크
         if (request.getMemo().length() > 200) {
             throw new CustomException(ErrorCode.CONTENT_TOO_LONG);
-        }
-
-        // 오늘 이미 보냈는지 체크
-        boolean alreadySent = bottleRepository.existsByBottleIdAndBottleCreatedAtAfter(id, LocalDateTime.now().with(LocalTime.MIN));
-        if (alreadySent) {
-            throw new CustomException(ErrorCode.ALREADY_SENT_TODAY);
         }
 
         // 유리병 엔티티 생성
@@ -83,9 +83,6 @@ public class BottleService {
                 .music(music)
                 .memo(request.getMemo())
                 .isShared(request.getIsShared())
-                .trackName(request.getMusicInfo().getTrackName())
-                .artistName(request.getMusicInfo().getArtistName())
-                .artworkUrl60(request.getMusicInfo().getArtworkUrl60())
                 .build();
 
         // 유리병 엔티티를 DB에 저장
@@ -246,9 +243,9 @@ public class BottleService {
                     .senderProfileImage(b.getBottle().getUser().getProfileImage())
                     .questionText(b.getBottle().getTodayQuest().getQuestionText())
                     .musicInfo(new BookmarkListResponse.MusicInfo(
-                            b.getBottle().getTrackName(),
-                            b.getBottle().getArtistName(),
-                            b.getBottle().getArtworkUrl60()
+                            b.getBottle().getMusic().getTrackName(),
+                            b.getBottle().getMusic().getArtistName(),
+                            b.getBottle().getMusic().getArtworkUrl60()
                     ))
                     .bookmarkExpiresAt(bookmarkExpiresAt)
                     .bookmarkCreatedAt(b.getBookmarkCreatedAt())
