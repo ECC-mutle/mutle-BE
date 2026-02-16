@@ -41,9 +41,9 @@ public class BottleCreateResponse {
                 .bottleCreatedAt(bottle.getBottleCreatedAt())
                 .musicInfo(MusicInfo.builder()
                         .musicId(bottle.getMusic().getMusicId())
-                        .trackName(bottle.getTrackName())
-                        .artistName(bottle.getArtistName())
-                        .artworkUrl60(bottle.getArtworkUrl60())
+                        .trackName(bottle.getMusic().getTrackName())
+                        .artistName(bottle.getMusic().getArtistName())
+                        .artworkUrl60(bottle.getMusic().getArtworkUrl60())
                         .build())
                 .build();
     }
