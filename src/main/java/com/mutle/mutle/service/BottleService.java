@@ -19,8 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 @Slf4j
 @Service
 public class BottleService {
@@ -60,7 +58,7 @@ public class BottleService {
 
         //music이 db에 있는지 확인, 없으면 생성
         Music music=musicRepository
-                .findByTrackNameAndArtistName(request.getMusicInfo().getTrackName(), request.getMusicInfo().getArtistName())
+                .findByFirstByTrackNameAndArtistName(request.getMusicInfo().getTrackName(), request.getMusicInfo().getArtistName())
                 .orElseGet(()->
                         musicRepository.save(
                                 Music.builder()
