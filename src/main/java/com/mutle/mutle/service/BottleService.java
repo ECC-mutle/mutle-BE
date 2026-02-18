@@ -58,7 +58,7 @@ public class BottleService {
 
         //music이 db에 있는지 확인, 없으면 생성
         Music music=musicRepository
-                .findByFirstByTrackNameAndArtistName(request.getMusicInfo().getTrackName(), request.getMusicInfo().getArtistName())
+                .findFirstByTrackNameAndArtistName(request.getMusicInfo().getTrackName(), request.getMusicInfo().getArtistName())
                 .orElseGet(()->
                         musicRepository.save(
                                 Music.builder()

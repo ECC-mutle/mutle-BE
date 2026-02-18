@@ -104,7 +104,7 @@ public class IslandService {
 
         //repMusic(music)이 db에 있는지 확인, 없으면 생성
         Music music=musicRepository
-                    .findByFirstByTrackNameAndArtistName(requestDto.getTrackName(), requestDto.getArtistName())
+                    .findFirstByTrackNameAndArtistName(requestDto.getTrackName(), requestDto.getArtistName())
                     .orElseGet(()->
                             musicRepository.save(
                                     Music.builder()
