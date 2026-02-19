@@ -176,8 +176,11 @@ public class BottleService {
         Bottle bottle = bottleRepository.findById(bottleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
 
-        // 생성일로부터 7일이 지났는지 확인
-        if (bottle.getBottleCreatedAt().toLocalDateTime().isBefore(LocalDateTime.now().minusDays(7))) {
+        Bookmark bookmark=bookmarkRepository.findByUser_IdAndBottle_BottleId(id, bottleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
+
+        // 북마크 만료일이 지났는지 확인
+        if (bookmark.getBookmarkExpiresAt().before(Timestamp.valueOf(LocalDateTime.now()))) {
             throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
         }
 
