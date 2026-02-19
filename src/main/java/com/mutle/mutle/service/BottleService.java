@@ -172,16 +172,26 @@ public class BottleService {
     // 유리병 상세페이지 조회
     public BottleDetailResponse getBottleDetail(Long bottleId, Long id) {
 
-        // 유리병 조회 및 예외 발생
+        // 유리병 기본 정보 조회
         Bottle bottle = bottleRepository.findById(bottleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
 
-        Bookmark bookmark=bookmarkRepository.findByUser_IdAndBottle_BottleId(id, bottleId)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
+        // 내가 작성한 유리병인지 확인
+        boolean isMyBottle = bottle.getUser().getId().equals(id);
 
-        // 북마크 만료일이 지났는지 확인
-        if (bookmark.getBookmarkExpiresAt().before(Timestamp.valueOf(LocalDateTime.now()))) {
-            throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
+        if (!isMyBottle) {
+            Bookmark bookmark = bookmarkRepository.findByUser_IdAndBottle_BottleId(id, bottleId)
+                    .orElse(null);
+
+            if (bookmark != null) {
+                if (bookmark.getBookmarkExpiresAt().before(Timestamp.valueOf(LocalDateTime.now()))) {
+                    throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
+                }
+            } else {
+                if (bottle.getBottleCreatedAt().toLocalDateTime().isBefore(LocalDateTime.now().minusDays(7))) {
+                    throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
+                }
+            }
         }
 
         // 반환
