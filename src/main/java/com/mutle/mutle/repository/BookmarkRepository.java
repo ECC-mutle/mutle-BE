@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     boolean existsByUserAndBottle(User user, Bottle bottle);
@@ -16,4 +17,5 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     @Query("SELECT b FROM Bookmark b WHERE b.user.id = :userId AND b.bookmarkCreatedAt > :sevenDaysAgo")
     List<Bookmark> findActiveBookmarks(@Param("userId") Long userId, @Param("sevenDaysAgo") Timestamp sevenDaysAgo);
 
+    Optional<Bookmark> findByUser_IdAndBottle_BottleId(Long userId, Long bottleBottleId);
 }
