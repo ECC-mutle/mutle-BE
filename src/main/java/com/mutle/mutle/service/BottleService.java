@@ -178,9 +178,14 @@ public class BottleService {
         Bottle bottle = bottleRepository.findById(bottleId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOTTLE_NOT_FOUND));
 
+        // 내가 작성한 유리병인지 확인
+           boolean isMyBottle = bottle.getUser().getId().equals(id);
+
         // 생성일로부터 7일이 지났는지 확인
-        if (bottle.getBottleCreatedAt().toLocalDateTime().isBefore(LocalDateTime.now().minusDays(7))) {
-            throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
+        if(!isMyBottle) {
+            if (bottle.getBottleCreatedAt().toLocalDateTime().isBefore(LocalDateTime.now().minusDays(7))) {
+                throw new CustomException(ErrorCode.EXPIRED_BOTTLE);
+            }
         }
 
         // 반환
